@@ -555,11 +555,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 | **CORS Issues** | App automatically tries 3 different proxies |
 | **PDF Processing** | Ensure PDF.js worker version matches (4.9.155) |
 
-### Get Help
-- **Email**: support@ainewsanalyzer.com
-- **Discord**: [Join our community](https://discord.gg/ainews)
-- **Twitter**: [@AINewsAnalyzer](https://twitter.com/ainewsanalyzer)
-
+ 
 ---
 
 <div align="center">
