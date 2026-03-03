@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { NewsArticle, PDFAnalysis, Language } from '../App';
+import { NewsArticle, ArticleAnalysis, Language } from '../App';
 
 /**
  * PDF Export Utilities
@@ -65,16 +65,18 @@ export async function exportNewsToPDF(
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(50, 100, 200);
-    doc.text(`${i + 1}. ${article.title}`, margin, yPosition);
-    yPosition += 7;
+    const titleLines = doc.splitTextToSize(`${i + 1}. ${article.title}`, contentWidth);
+    doc.text(titleLines, margin, yPosition);
+    yPosition += titleLines.length * 7;
 
     // Source and date
     doc.setFontSize(9);
     doc.setFont('helvetica', 'italic');
     doc.setTextColor(100);
     const metadata = `${article.source} | ${article.date.toLocaleDateString()} | ${article.topics.join(', ')}`;
-    doc.text(metadata, margin, yPosition);
-    yPosition += 7;
+    const metadataLines = doc.splitTextToSize(metadata, contentWidth);
+    doc.text(metadataLines, margin, yPosition);
+    yPosition += metadataLines.length * 5 + 2;
 
     // Summary
     if (article.summary) {
@@ -113,8 +115,9 @@ export async function exportNewsToPDF(
     doc.setFontSize(8);
     doc.setFont('helvetica', 'italic');
     doc.setTextColor(50, 100, 200);
-    doc.text(`Source: ${article.url}`, margin, yPosition);
-    yPosition += 10;
+    const urlLines = doc.splitTextToSize(`Source: ${article.url}`, contentWidth);
+    doc.text(urlLines, margin, yPosition);
+    yPosition += urlLines.length * 4 + 6;
 
     // Separator
     doc.setDrawColor(220);
@@ -131,7 +134,7 @@ export async function exportNewsToPDF(
  * Export PDF analysis to PDF
  */
 export async function exportPDFAnalysisToPDF(
-  analysis: PDFAnalysis,
+  analysis: ArticleAnalysis,
   fileName: string,
   options: ExportOptions = { language: 'en' }
 ): Promise<void> {

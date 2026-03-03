@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { NewsArticle, ProcessedPDF, Language } from "../App";
 import { toast } from "sonner";
+import { exportPDFAnalysisToPDF, exportArticleToPDF } from "../utils/pdfExporter";
 
 interface AnalysisViewerProps {
   item: NewsArticle | ProcessedPDF;
@@ -250,24 +251,19 @@ export function AnalysisViewer({
   const isArticle = "source" in item;
   const analysis = item.analysis;
 
-  const handleExport = () => {
-    const exportData = {
-      title: isArticle ? item.title : item.name,
-      date: isArticle ? item.date : item.uploadDate,
-      ...(isArticle && { source: item.source }),
-      analysis: analysis,
-    };
-
-    const blob = new Blob(
-      [JSON.stringify(exportData, null, 2)],
-      { type: "application/json" },
-    );
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `analysis-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleExport = async () => {
+    try {
+      if (analysis) {
+        const fileName = isArticle ? item.title : item.name;
+        await exportPDFAnalysisToPDF(analysis, fileName, { language });
+        toast.success('Analysis exported as PDF successfully!');
+      } else {
+        toast.error('No analysis available to export');
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to export analysis');
+    }
   };
 
   const handleShare = async () => {

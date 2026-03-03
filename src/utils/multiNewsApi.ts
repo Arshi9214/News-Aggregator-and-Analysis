@@ -1,6 +1,8 @@
+/// <reference types="vite/client" />
 import { NewsArticle, Topic, Language } from '../App';
 import { generateLightweightSummary } from './groqApi';
 import { fetchRSSNews, generateRSSSummary } from './rssApi';
+import { fetchArchiveNews } from './archiveApi';
 
 /**
  * Multi-source News API Integration with Fallback
@@ -56,7 +58,8 @@ export async function fetchNewsWithFallback(
   topics: Topic[],
   dateRange: { from: Date; to: Date },
   language: Language,
-  onProgress?: (status: string, source: NewsSource | 'rss') => void
+  onProgress?: (status: string, source: NewsSource | 'rss' | 'archive') => void,
+  onArticlesFound?: (articles: NewsArticle[]) => void
 ): Promise<NewsArticle[]> {
   // For ≤7 days, try RSS first (unlimited, real-time)
   const daysDiff = (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
@@ -67,7 +70,7 @@ export async function fetchNewsWithFallback(
       console.log('🔄 Attempting RSS FEEDS (unlimited, real-time)');
       onProgress?.('Fetching from RSS feeds...', 'rss');
       
-      const rssArticles = await fetchRSSNews(topics, language, dateRange);
+      const rssArticles = await fetchRSSNews(topics, language, dateRange, onArticlesFound);
       console.log(`📰 RSS returned ${rssArticles.length} articles`);
       
       if (rssArticles.length > 0) {
@@ -83,6 +86,31 @@ export async function fetchNewsWithFallback(
     }
   } else {
     console.log(`⏭️ Skipping RSS (${daysDiff.toFixed(2)} days > 7.5 day threshold)`);
+    console.log('🔍 Archive system check: fetchArchiveNews function exists:', typeof fetchArchiveNews);
+    
+    // For longer ranges, try archive sources first
+    try {
+      console.log('🔄 Attempting NEWS ARCHIVES (unlimited historical data)');
+      onProgress?.('Fetching from news archives...', 'archive');
+      
+      const archiveArticles = await fetchArchiveNews(topics, dateRange, language, (status, source) => {
+        console.log(`📚 Archive progress: ${status} (${source})`);
+        onProgress?.(status, 'archive');
+      }, onArticlesFound);
+      console.log(`📚 Archives returned ${archiveArticles.length} articles`);
+      
+      if (archiveArticles.length > 0) {
+        console.log(`✅ SUCCESS: Archives returned ${archiveArticles.length} articles`);
+        onProgress?.(`Success! Loaded ${archiveArticles.length} articles from archives`, 'archive');
+        return archiveArticles;
+      } else {
+        console.log('⚠️ Archives returned 0 articles, falling back to APIs');
+      }
+    } catch (error: any) {
+      console.error('❌ ARCHIVES FAILED:', error.message, error);
+      console.error('Archive error stack:', error.stack);
+      onProgress?.('Archives failed, trying API sources...', 'archive');
+    }
   }
   
   // Fallback to API sources
@@ -221,6 +249,7 @@ async function fetchFromNewsData(
 
 /**
  * GNews (Primary for monthly - 100 req/day, 30-day history, 12h delay)
+ * For monthly ranges, make multiple requests to get better coverage
  */
 async function fetchFromGNews(
   topics: Topic[],
@@ -233,42 +262,97 @@ async function fetchFromGNews(
 
   const keywords = getKeywords(topics, language);
   const langCode = 'en';
+  const daysDiff = (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
   
-  const params = new URLSearchParams({
-    apikey: GNEWS_API_KEY,
-    q: keywords,
-    country: 'in',
-    lang: langCode,
-    max: '10',
-    from: dateRange.from.toISOString(),
-    to: dateRange.to.toISOString()
-  });
+  let allArticles: NewsArticle[] = [];
+  
+  // For monthly ranges, make multiple requests with different keywords to get better coverage
+  if (daysDiff > 14) {
+    const keywordSets = [
+      'India government policy',
+      'India economy budget',
+      'India international relations',
+      'India technology science',
+      'India environment climate',
+      'India society education health'
+    ];
+    
+    for (const keywordSet of keywordSets) {
+      try {
+        const params = new URLSearchParams({
+          apikey: GNEWS_API_KEY,
+          q: keywordSet,
+          country: 'in',
+          lang: langCode,
+          max: '10',
+          from: dateRange.from.toISOString(),
+          to: dateRange.to.toISOString()
+        });
 
-  const response = await fetch(
-    `https://gnews.io/api/v4/search?${params}`
+        const response = await fetch(
+          `https://gnews.io/api/v4/search?${params}`
+        );
+
+        if (!response.ok) continue;
+
+        const data = await response.json();
+        
+        if (data.errors) continue;
+        
+        const articles = (data.articles || []).map((article: any) => convertGNewsArticle(article, topics, language));
+        allArticles.push(...articles);
+        
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
+        console.warn('GNews keyword request failed:', error);
+        continue;
+      }
+    }
+  } else {
+    // For shorter ranges, use single request
+    const params = new URLSearchParams({
+      apikey: GNEWS_API_KEY,
+      q: keywords,
+      country: 'in',
+      lang: langCode,
+      max: '10',
+      from: dateRange.from.toISOString(),
+      to: dateRange.to.toISOString()
+    });
+
+    const response = await fetch(
+      `https://gnews.io/api/v4/search?${params}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`GNews error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.errors) {
+      throw new Error(data.errors[0] || 'GNews request failed');
+    }
+    
+    allArticles = (data.articles || []).map((article: any) => convertGNewsArticle(article, topics, language));
+  }
+  
+  // Remove duplicates based on URL
+  const uniqueArticles = allArticles.filter((article, index, self) => 
+    index === self.findIndex(a => a.url === article.url)
   );
-
-  if (!response.ok) {
-    throw new Error(`GNews error: ${response.status}`);
-  }
-
-  const data = await response.json();
   
-  if (data.errors) {
-    throw new Error(data.errors[0] || 'GNews request failed');
-  }
-  
-  // Convert articles
-  const articles = (data.articles || []).map((article: any) => convertGNewsArticle(article, topics, language));
-  
-  // Filter by date range on client side (GNews free tier doesn't respect date params properly)
-  const filtered = articles.filter(article => {
+  // Filter by date range and topics
+  const filtered = uniqueArticles.filter((article: NewsArticle) => {
     const articleDate = article.date.getTime();
-    return articleDate >= dateRange.from.getTime() && articleDate <= dateRange.to.getTime();
+    const inDateRange = articleDate >= dateRange.from.getTime() && articleDate <= dateRange.to.getTime();
+    const hasRelevantTopic = topics.includes('all') || article.topics.some(t => topics.includes(t));
+    return inDateRange && hasRelevantTopic;
   });
   
-  console.log(`GNews: Received ${articles.length} articles, filtered to ${filtered.length} within date range`);
-  return filtered;
+  console.log(`GNews: Received ${allArticles.length} articles, filtered to ${filtered.length} unique articles within date range`);
+  return filtered.sort((a, b) => b.date.getTime() - a.date.getTime());
 }
 
 /**
@@ -435,27 +519,21 @@ export function getDateRange(
       break;
     case 'month':
       to = new Date(now);
-      to.setHours(23, 59, 59, 999);
       from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      from.setHours(0, 0, 0, 0);
       break;
     case 'custom':
       if (customDates) {
         return {
-          from: customDates.from > now ? now : customDates.from,
-          to: customDates.to > now ? now : customDates.to
+          from: customDates.from,
+          to: customDates.to
         };
       }
       to = new Date(now);
-      to.setHours(23, 59, 59, 999);
       from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      from.setHours(0, 0, 0, 0);
       break;
     default:
       to = new Date(now);
-      to.setHours(23, 59, 59, 999);
       from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      from.setHours(0, 0, 0, 0);
   }
   
   return { from, to };

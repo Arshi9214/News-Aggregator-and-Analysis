@@ -1,8 +1,10 @@
 import { NewsArticle, Topic, Language } from '../App';
 import { generateLightweightSummary } from './groqApi';
+import { translateNewsContent } from './translator';
 
 // Indian news RSS feeds (most reliable sources)
 const RSS_FEEDS = {
+  // Main feeds
   toi: 'https://timesofindia.indiatimes.com/rssfeedstopstories.cms',
   hindu: 'https://www.thehindu.com/news/national/feeder/default.rss',
   indianExpress: 'https://indianexpress.com/feed/',
@@ -10,7 +12,19 @@ const RSS_FEEDS = {
   ndtv: 'https://feeds.feedburner.com/ndtvnews-top-stories',
   livemint: 'https://www.livemint.com/rss/news',
   wire: 'https://thewire.in/feed',
-  indiaToday: 'https://www.indiatoday.in/rss/home'
+  indiaToday: 'https://www.indiatoday.in/rss/home',
+  
+  // Category-specific feeds for better coverage
+  toiPolitics: 'https://timesofindia.indiatimes.com/rssfeeds/1898055.cms',
+  toiEconomy: 'https://timesofindia.indiatimes.com/rssfeeds/1898056.cms',
+  hinduPolitics: 'https://www.thehindu.com/news/national/feeder/default.rss',
+  hinduBusiness: 'https://www.thehindu.com/business/feeder/default.rss',
+  ieIndia: 'https://indianexpress.com/section/india/feed/',
+  iePolitics: 'https://indianexpress.com/section/political-pulse/feed/',
+  ndtvIndia: 'https://feeds.feedburner.com/ndtvnews-india-news',
+  ndtvBusiness: 'https://feeds.feedburner.com/ndtvprofit-latest',
+  mintPolitics: 'https://www.livemint.com/rss/politics',
+  mintEconomy: 'https://www.livemint.com/rss/economy'
 };
 
 // Try multiple CORS proxies
@@ -35,7 +49,8 @@ function isEnglish(text: string): boolean {
 export async function fetchRSSNews(
   topics: Topic[],
   language: Language,
-  dateRange?: { from: Date; to: Date }
+  dateRange?: { from: Date; to: Date },
+  onArticlesFound?: (articles: NewsArticle[]) => void
 ): Promise<NewsArticle[]> {
   const articles: NewsArticle[] = [];
   
@@ -65,6 +80,8 @@ export async function fetchRSSNews(
         const items = xml.querySelectorAll('item');
         if (items.length === 0) continue;
         
+        const sourceArticles: NewsArticle[] = [];
+        
         for (let i = 0; i < items.length; i++) {
           const item = items[i];
           const title = item.querySelector('title')?.textContent || 'Untitled';
@@ -81,21 +98,43 @@ export async function fetchRSSNews(
           const pubDate = item.querySelector('pubDate')?.textContent || '';
           const guid = item.querySelector('guid')?.textContent || '';
           
+          // Translate content if needed
+          const { title: translatedTitle, content: translatedContent } = 
+            await translateNewsContent(title, content, language);
+          
+          const hasRealContent = content.length > title.length + 50;
+          
           const article: NewsArticle = {
             id: `rss-${source}-${guid || link || Date.now()}-${i}`,
-            title,
-            content: content.length > title.length ? content : `${title}. Click 'Generate Summary' for AI analysis or visit the article link for full content.`,
-            summary: content.length > title.length ? content.substring(0, 200) + (content.length > 200 ? '...' : '') : 'Click Generate Summary for AI-powered analysis',
+            title: translatedTitle,
+            content: hasRealContent ? translatedContent : `${translatedTitle}. Click 'Generate Summary' for AI analysis or visit the article link for full content.`,
+            summary: hasRealContent ? translatedContent.substring(0, 300) : 'Click Generate Summary for AI-powered analysis',
             source: { name: source.toUpperCase() },
             date: pubDate ? new Date(pubDate) : new Date(),
             topics: detectTopics(title + ' ' + content, topics),
             language,
             url: link,
             imageUrl: undefined,
-            bookmarked: false
+            bookmarked: false,
+            hasRealContent
           };
           
-          articles.push(article);
+          sourceArticles.push(article);
+        }
+        
+        articles.push(...sourceArticles);
+        
+        // Progressive loading: yield articles from this source immediately
+        if (sourceArticles.length > 0 && onArticlesFound) {
+          const filteredSourceArticles = sourceArticles.filter(article => {
+            if (!dateRange) return true;
+            const articleTime = article.date.getTime();
+            return articleTime >= dateRange.from.getTime() && articleTime <= dateRange.to.getTime();
+          });
+          
+          if (filteredSourceArticles.length > 0) {
+            onArticlesFound(filteredSourceArticles);
+          }
         }
         
         success = true;
@@ -112,16 +151,61 @@ export async function fetchRSSNews(
     }
   }
   
-  return articles.sort((a, b) => b.date.getTime() - a.date.getTime())
-    .filter(article => {
-      if (!dateRange) return true;
-      const articleTime = article.date.getTime();
-      const inRange = articleTime >= dateRange.from.getTime() && articleTime <= dateRange.to.getTime();
-      if (!inRange && articles.indexOf(article) < 3) {
-        console.log('Article filtered:', article.title, 'Date:', article.date, 'Range:', dateRange.from, '-', dateRange.to);
+  // Remove duplicates and prioritize articles with real content
+  const uniqueArticles = removeDuplicates(articles);
+  
+  // Sort: articles with real content first, then by date
+  const sortedArticles = uniqueArticles.sort((a, b) => {
+    if (a.hasRealContent && !b.hasRealContent) return -1;
+    if (!a.hasRealContent && b.hasRealContent) return 1;
+    return b.date.getTime() - a.date.getTime();
+  });
+  
+  return sortedArticles.filter(article => {
+    if (!dateRange) return true;
+    const articleTime = article.date.getTime();
+    const inRange = articleTime >= dateRange.from.getTime() && articleTime <= dateRange.to.getTime();
+    return inRange;
+  });
+}
+
+/**
+ * Remove duplicate articles based on title similarity
+ */
+function removeDuplicates(articles: NewsArticle[]): NewsArticle[] {
+  const unique: NewsArticle[] = [];
+  const seenTitles = new Set<string>();
+  
+  for (const article of articles) {
+    // More aggressive normalization for better duplicate detection
+    const normalizedTitle = article.title
+      .toLowerCase()
+      .replace(/[^\w\s]/g, ' ')  // Replace punctuation with spaces
+      .replace(/\s+/g, ' ')     // Collapse multiple spaces
+      .trim();
+    
+    // Create a shorter key for similarity matching (first 50 chars)
+    const titleKey = normalizedTitle.substring(0, 50);
+    
+    // Check if we've seen a very similar title
+    let isDuplicate = false;
+    for (const seenTitle of seenTitles) {
+      if (titleKey === seenTitle || 
+          (titleKey.length > 20 && seenTitle.includes(titleKey.substring(0, 30))) ||
+          (seenTitle.length > 20 && titleKey.includes(seenTitle.substring(0, 30)))) {
+        isDuplicate = true;
+        break;
       }
-      return inRange;
-    });
+    }
+    
+    if (!isDuplicate && normalizedTitle.length > 10) {
+      seenTitles.add(titleKey);
+      unique.push(article);
+    }
+  }
+  
+  console.log(`🔄 RSS: Removed ${articles.length - unique.length} duplicates (${articles.length} → ${unique.length})`);
+  return unique;
 }
 
 export async function generateRSSSummary(

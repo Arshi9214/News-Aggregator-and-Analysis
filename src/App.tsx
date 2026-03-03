@@ -26,6 +26,7 @@ export interface NewsArticle {
   summary?: string;
   analysis?: ArticleAnalysis;
   bookmarked?: boolean;
+  hasRealContent?: boolean;
 }
 
 export interface ArticleAnalysis {

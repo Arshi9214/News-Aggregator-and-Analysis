@@ -24,7 +24,7 @@ const TRANSLATIONS = {
     subtitle: 'Latest current affairs from trusted sources',
     search: 'Search articles...',
     dateRange: 'Date Range',
-    fetchNews: 'Fetch Latest News',
+    fetchNews: 'Fetch News',
     viewMore: 'View More Articles',
     export: 'Export Results',
     analyzing: 'Analyzing articles...',
@@ -41,7 +41,7 @@ const TRANSLATIONS = {
     subtitle: 'विश्वसनीय स्रोतों से नवीनतम करंट अफेयर्स',
     search: 'लेख खोजें...',
     dateRange: 'तिथि सीमा',
-    fetchNews: 'नवीनतम समाचार प्राप्त करें',
+    fetchNews: 'समाचार प्राप्त करें',
     viewMore: 'अधिक लेख देखें',
     export: 'परिणाम निर्यात करें',
     analyzing: 'लेखों का विश्लेषण...',
@@ -58,7 +58,7 @@ const TRANSLATIONS = {
     subtitle: 'நம்பகமான ஆதாரங்களிலிருந்து சமீபத்திய நடப்பு விவகாரங்கள்',
     search: 'கட்டுரைகளைத் தேடுங்கள்...',
     dateRange: 'தேதி வரம்பு',
-    fetchNews: 'சமீபத்திய செய்திகளைப் பெறுக',
+    fetchNews: 'செய்திகளைப் பெறுக',
     export: 'முடிவுகளை ஏற்றுமதி செய்',
     analyzing: 'கட்டுரைகளை பகுப்பாய்வு செய்கிறது...',
     noResults: 'கட்டுரைகள் எதுவும் கிடைக்கவில்லை. செய்திகளைப் பெற முயற்சிக்கவும் அல்லது உங்கள் வடிகட்டிகளை சரிசெய்யவும்.',
@@ -73,7 +73,7 @@ const TRANSLATIONS = {
     subtitle: 'বিশ্বস্ত উৎস থেকে সর্বশেষ কারেন্ট অ্যাফেয়ার্স',
     search: 'নিবন্ধ খুঁজুন...',
     dateRange: 'তারিখ পরিসীমা',
-    fetchNews: 'সর্বশেষ খবর আনুন',
+    fetchNews: 'খবর আনুন',
     export: 'ফলাফল রপ্তানি করুন',
     analyzing: 'নিবন্ধ বিশ্লেষণ করা হচ্ছে...',
     noResults: 'কোনো নিবন্ধ পাওয়া যায়নি। খবর আনতে বা আপনার ফিল্টার সামঞ্জস্য করার চেষ্টা করুন।',
@@ -88,7 +88,7 @@ const TRANSLATIONS = {
     subtitle: 'విశ్వసనీయ మూలాల నుండి తాజా కరెంట్ అఫైర్స్',
     search: 'కథనాలను వెతకండి...',
     dateRange: 'తేదీ పరిధి',
-    fetchNews: 'తాజా వార్తలను పొందండి',
+    fetchNews: 'వార్తలను పొందండి',
     export: 'ఫలితాలను ఎగుమతి చేయండి',
     analyzing: 'కథనాలను విశ్లేషిస్తోంది...',
     noResults: 'ఏ కథనాలు కనుగొనబడలేదు. వార్తలను పొందడానికి ప్రయత్నించండి లేదా మీ ఫిల్టర్‌లను సర్దుబాటు చేయండి.',
@@ -103,7 +103,7 @@ const TRANSLATIONS = {
     subtitle: 'विश्वसनीय स्रोतांकडून नवीनतम चालू घडामोडी',
     search: 'लेख शोधा...',
     dateRange: 'तारीख श्रेणी',
-    fetchNews: 'नवीनतम बातम्या मिळवा',
+    fetchNews: 'बातम्या मिळवा',
     export: 'परिणाम निर्यात करा',
     analyzing: 'लेखांचे विश्लेषण करत आहे...',
     noResults: 'कोणतेही लेख सापडले नाहीत. बातम्या आणणे किंवा तुमचे फिल्टर समायोजित करण्याचा प्रयत्न करा.',
@@ -118,7 +118,7 @@ const TRANSLATIONS = {
     subtitle: 'વિશ્વસનીય સ્ત્રોતોમાંથી તાજેતરના વર્તમાન બાબતો',
     search: 'લેખો શોધો...',
     dateRange: 'તારીખ શ્રેણી',
-    fetchNews: 'તાજા સમાચાર મેળવો',
+    fetchNews: 'સમાચાર મેળવો',
     export: 'પરિણામો નિકાસ કરો',
     analyzing: 'લેખોનું વિશ્લેષણ કરી રહ્યું છે...',
     noResults: 'કોઈ લેખો મળ્યા નથી. સમાચાર મેળવવાનો પ્રયાસ કરો અથવા તમારા ફિલ્ટર્સને સમાયોજિત કરો.',
@@ -133,7 +133,7 @@ const TRANSLATIONS = {
     subtitle: 'ವಿಶ್ವಾಸಾರ್ಹ ಮೂಲಗಳಿಂದ ಇತ್ತೀಚಿನ ಕರೆಂಟ್ ಅಫೇರ್ಸ್',
     search: 'ಲೇಖನಗಳನ್ನು ಹುಡುಕಿ...',
     dateRange: 'ದಿನಾಂಕ ವ್ಯಾಪ್ತಿ',
-    fetchNews: 'ಇತ್ತೀಚಿನ ಸುದ್ದಿಗಳನ್ನು ಪಡೆಯಿರಿ',
+    fetchNews: 'ಸುದ್ದಿಗಳನ್ನು ಪಡೆಯಿರಿ',
     export: 'ಫಲಿತಾಂಶಗಳನ್ನು ರಫ್ತು ಮಾಡಿ',
     analyzing: 'ಲೇಖನಗಳನ್ನು ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ...',
     noResults: 'ಯಾವುದೇ ಲೇಖನಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಸುದ್ದಿಗಳನ್ನು ಪಡೆಯಲು ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ನಿಮ್ಮ ಫಿಲ್ಟರ್‌ಗಳನ್ನು ಸರಿಹೊಂದಿಸಿ.',
@@ -148,7 +148,7 @@ const TRANSLATIONS = {
     subtitle: 'വിശ്വസനീയ സ്രോതസ്സുകളിൽ നിന്നുള്ള ഏറ്റവും പുതിയ കറന്റ് അഫയേഴ്സ്',
     search: 'ലേഖനങ്ങൾ തിരയുക...',
     dateRange: 'തീയതി ശ്രേണി',
-    fetchNews: 'ഏറ്റവും പുതിയ വാർത്തകൾ നേടുക',
+    fetchNews: 'വാർത്തകൾ നേടുക',
     export: 'ഫലങ്ങൾ കയറ്റുമതി ചെയ്യുക',
     analyzing: 'ലേഖനങ്ങൾ വിശകലനം ചെയ്യുന്നു...',
     noResults: 'ലേഖനങ്ങളൊന്നും കണ്ടെത്തിയില്ല. വാർത്തകൾ എടുക്കാൻ ശ്രമിക്കുക അല്ലെങ്കിൽ നിങ്ങളുടെ ഫിൽട്ടറുകൾ ക്രമീകരിക്കുക.',
@@ -163,7 +163,7 @@ const TRANSLATIONS = {
     subtitle: 'ਭਰੋਸੇਯੋਗ ਸਰੋਤਾਂ ਤੋਂ ਤਾਜ਼ਾ ਕਰੰਟ ਅਫੇਅਰਜ਼',
     search: 'ਲੇਖਾਂ ਦੀ ਖੋਜ ਕਰੋ...',
     dateRange: 'ਤਾਰੀਖ ਰੇਂਜ',
-    fetchNews: 'ਤਾਜ਼ਾ ਖ਼ਬਰਾਂ ਪ੍ਰਾਪਤ ਕਰੋ',
+    fetchNews: 'ਖ਼ਬਰਾਂ ਪ੍ਰਾਪਤ ਕਰੋ',
     export: 'ਨਤੀਜੇ ਐਕਸਪੋਰਟ ਕਰੋ',
     analyzing: 'ਲੇਖਾਂ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...',
     noResults: 'ਕੋਈ ਲੇਖ ਨਹੀਂ ਮਿਲਿਆ। ਖ਼ਬਰਾਂ ਪ੍ਰਾਪਤ ਕਰਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰੋ ਜਾਂ ਆਪਣੇ ਫਿਲਟਰ ਐਡਜਸਟ ਕਰੋ।',
@@ -178,7 +178,7 @@ const TRANSLATIONS = {
     subtitle: 'قابل اعتماد ذرائع سے تازہ ترین کرنٹ افیئرز',
     search: 'مضامین تلاش کریں...',
     dateRange: 'تاریخ کی حد',
-    fetchNews: 'تازہ ترین خبریں حاصل کریں',
+    fetchNews: 'خبریں حاصل کریں',
     export: 'نتائج برآمد کریں',
     analyzing: 'مضامین کا تجزیہ کیا جا رہا ہے...',
     noResults: 'کوئی مضمون نہیں ملا۔ خبریں حاصل کرنے یا اپنے فلٹرز کو ایڈجسٹ کرنے کی کوشش کریں۔',
@@ -308,15 +308,33 @@ export function NewsAggregator({
         selectedTopics,
         dates,
         language,
-        (status) => setFetchStatus(status)
+        (status) => setFetchStatus(status),
+        // Progressive loading callback
+        (newArticles) => {
+          console.log(`🔄 Progressive update: ${newArticles.length} new articles`);
+          if (!isLoadMore) {
+            onArticlesLoaded((prev: NewsArticle[]) => {
+              const combined = [...prev, ...newArticles];
+              const unique = combined.filter((article, index, self) => 
+                index === self.findIndex(a => a.id === article.id)
+              );
+              return unique.sort((a, b) => b.date.getTime() - a.date.getTime());
+            });
+          }
+        }
       );
       
       console.log('📦 Fetched articles:', fetchedArticles.length, fetchedArticles.slice(0, 2));
       console.log('🔍 isLoadMore:', isLoadMore);
       
+      // Don't overwrite progressive updates - just ensure final count is correct
       if (!isLoadMore) {
-        console.log('🔄 Calling onArticlesLoaded with', fetchedArticles.length, 'articles');
-        onArticlesLoaded(fetchedArticles);
+        console.log('✅ Progressive loading complete');
+        // Fallback: if no articles were loaded progressively, load them now
+        if (articles.length === 0 && fetchedArticles.length > 0) {
+          console.log('🔄 Fallback: Loading articles since progressive loading didn\'t work');
+          onArticlesLoaded(fetchedArticles);
+        }
         setDisplayCount(50);
         toast.success(`Loaded ${fetchedArticles.length} articles!`);
       } else {
@@ -346,6 +364,11 @@ export function NewsAggregator({
     
     return matchesSearch && matchesTopics;
   }).sort((a, b) => {
+    // First priority: content quality (articles with real content first)
+    if (a.hasRealContent && !b.hasRealContent) return -1;
+    if (!a.hasRealContent && b.hasRealContent) return 1;
+    
+    // Second priority: date sorting within each group
     return sortOrder === 'newest' 
       ? b.date.getTime() - a.date.getTime()
       : a.date.getTime() - b.date.getTime();
@@ -561,9 +584,9 @@ export function NewsAggregator({
         </div>
       ) : (
         <>
-          <div className="columns-1 lg:columns-2 gap-6 space-y-6">
+          <div className="columns-1 lg:columns-2 gap-4 space-y-4">
             {displayedArticles.map(article => (
-              <div key={article.id} className="break-inside-avoid mb-6">
+              <div key={article.id} className="break-inside-avoid mb-4">
                 <NewsCard
                   article={article}
                   language={language}

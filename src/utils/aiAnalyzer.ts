@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { ArticleAnalysis, AnalysisDepth, Language, Topic } from '../App';
 
 /**
