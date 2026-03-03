@@ -266,9 +266,10 @@ export function NewsAggregator({
       
       try {
         const updatedArticle = await generateArticleSummary(article);
-        onArticlesLoaded((prev: NewsArticle[]) => 
-          prev.map((a: NewsArticle) => a.id === updatedArticle.id ? updatedArticle : a)
-        );
+        onArticlesLoaded((prev: NewsArticle[]) => {
+          const updatedArticles = prev.map((a: NewsArticle) => a.id === updatedArticle.id ? updatedArticle : a);
+          return updatedArticles;
+        });
         setSummarizingIds(prev => {
           const next = new Set(prev);
           next.delete(article.id);
@@ -297,10 +298,16 @@ export function NewsAggregator({
     try {
       let dates = getDateRange(dateRange);
       
-      if (analysisDepth === 'advanced' && dateRange === 'custom' && customStartDate && customEndDate) {
+      if (dateRange === 'custom' && customStartDate && customEndDate) {
+        // Create date range for the selected month and year
+        const year = parseInt(customEndDate);
+        const month = parseInt(customStartDate) - 1; // Month is 0-indexed
+        const startOfMonth = new Date(year, month, 1);
+        const endOfMonth = new Date(year, month + 1, 0); // Last day of month
+        
         dates = {
-          from: new Date(customStartDate),
-          to: new Date(customEndDate)
+          from: startOfMonth,
+          to: endOfMonth
         };
       }
       
@@ -422,7 +429,7 @@ export function NewsAggregator({
           ? 'bg-[#f9f3e8] border-[#8b7355]'
           : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
       }`}>
-        <div className={`grid grid-cols-1 gap-4 ${dateRange === '24h' || dateRange === 'week' || dateRange === 'month' ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           {/* Search */}
           <div className="relative">
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 pointer-events-none ${
@@ -448,34 +455,38 @@ export function NewsAggregator({
               onChange={(e) => {
                 const value = e.target.value as any;
                 setDateRange(value);
-                if (value === 'custom' && analysisDepth === 'advanced') {
+                if (value === 'custom') {
                   setShowTimePicker(true);
                 }
               }}
-              className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:border-transparent ${
+                themeMode === 'newspaper'
+                  ? 'bg-[#f4e8d0] border-[#8b7355] text-[#2c1810] focus:ring-[#8b7355]'
+                  : 'bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-blue-500'
+              }`}
             >
               <option value="24h">{t.last24h}</option>
               <option value="week">{t.lastWeek}</option>
               <option value="month">{t.lastMonth}</option>
-              {analysisDepth === 'advanced' && (
-                <option value="custom">{t.custom}</option>
-              )}
+              <option value="custom">{t.custom}</option>
             </select>
           </div>
 
-          {/* Sort Order - Show for 24h/week/month */}
-          {(dateRange === '24h' || dateRange === 'week' || dateRange === 'month') && (
-            <div>
-              <select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-              </select>
-            </div>
-          )}
+          {/* Sort Order - Show for all date ranges */}
+          <div>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+              className={`w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:border-transparent ${
+                themeMode === 'newspaper'
+                  ? 'bg-[#f4e8d0] border-[#8b7355] text-[#2c1810] focus:ring-[#8b7355]'
+                  : 'bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-blue-500'
+              }`}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
 
           {/* Actions */}
           <div className="flex gap-2">
@@ -503,7 +514,11 @@ export function NewsAggregator({
             <button
               onClick={handleExport}
               disabled={filteredArticles.length === 0}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-700 dark:text-gray-300 rounded-lg transition-colors text-sm font-medium"
+              className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 ${
+                themeMode === 'newspaper'
+                  ? 'bg-[#e8dcc8] hover:bg-[#d4c5a9] text-[#3d2817] border border-[#8b7355]'
+                  : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
+              }`}
               title={t.export}
             >
               <Download className="h-4 w-4" />
@@ -511,7 +526,11 @@ export function NewsAggregator({
             <button
               onClick={handleExportToPDF}
               disabled={filteredArticles.length === 0}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-700 dark:text-gray-300 rounded-lg transition-colors text-sm font-medium"
+              className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 ${
+                themeMode === 'newspaper'
+                  ? 'bg-[#e8dcc8] hover:bg-[#d4c5a9] text-[#3d2817] border border-[#8b7355]'
+                  : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
+              }`}
               title="Export to PDF"
             >
               <FileDown className="h-4 w-4" />
@@ -519,34 +538,68 @@ export function NewsAggregator({
           </div>
         </div>
 
-        {/* Custom Date Picker for Advanced Mode */}
-        {analysisDepth === 'advanced' && dateRange === 'custom' && showTimePicker && (
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        {/* Custom Date Picker */}
+        {dateRange === 'custom' && showTimePicker && (
+          <div className={`mt-4 p-4 rounded-lg border ${
+            themeMode === 'newspaper'
+              ? 'bg-[#f4e8d0] border-[#8b7355]'
+              : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+          }`}>
             <div className="flex items-center gap-2 mb-3">
-              <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Custom Date Range</h4>
+              <Clock className={`h-4 w-4 ${
+                themeMode === 'newspaper' ? 'text-[#5a4a3a]' : 'text-blue-600 dark:text-blue-400'
+              }`} />
+              <h4 className={`text-sm font-semibold ${
+                themeMode === 'newspaper' ? 'text-[#2c1810]' : 'text-gray-900 dark:text-white'
+              }`}>Custom Month & Year</h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
-                <input
-                  type="date"
+                <label className={`block text-xs font-medium mb-1 ${
+                  themeMode === 'newspaper' ? 'text-[#3d2817]' : 'text-gray-700 dark:text-gray-300'
+                }`}>Month</label>
+                <select
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
-                  max={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:border-transparent ${
+                    themeMode === 'newspaper'
+                      ? 'bg-[#f9f3e8] border-[#8b7355] text-[#2c1810] focus:ring-[#8b7355]'
+                      : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-blue-500'
+                  }`}
+                >
+                  <option value="">Select Month</option>
+                  <option value="01">January</option>
+                  <option value="02">February</option>
+                  <option value="03">March</option>
+                  <option value="04">April</option>
+                  <option value="05">May</option>
+                  <option value="06">June</option>
+                  <option value="07">July</option>
+                  <option value="08">August</option>
+                  <option value="09">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
-                <input
-                  type="date"
+                <label className={`block text-xs font-medium mb-1 ${
+                  themeMode === 'newspaper' ? 'text-[#3d2817]' : 'text-gray-700 dark:text-gray-300'
+                }`}>Year</label>
+                <select
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
-                  min={customStartDate}
-                  max={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:border-transparent ${
+                    themeMode === 'newspaper'
+                      ? 'bg-[#f9f3e8] border-[#8b7355] text-[#2c1810] focus:ring-[#8b7355]'
+                      : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-blue-500'
+                  }`}
+                >
+                  <option value="">Select Year</option>
+                  {Array.from({length: 30}, (_, i) => 2026 - i).map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>

@@ -232,7 +232,7 @@ export function Sidebar({
           }`}>
             {t.topics}
           </label>
-          <div className="space-y-1 max-h-64 overflow-y-auto">
+          <div className="space-y-1">
             {TOPICS.map(topic => (
               <button
                 key={topic.value}
@@ -248,32 +248,7 @@ export function Sidebar({
           </div>
         </div>
 
-        {/* Analysis Depth */}
-        <div>
-          <label className={`block text-sm font-medium mb-2 ${
-            themeMode === 'newspaper' ? 'text-[#3d2817]' : 'text-gray-700 dark:text-gray-300'
-          }`}>
-            {t.depth}
-          </label>
-          <div className="space-y-1">
-            <button
-              onClick={() => setAnalysisDepth('basic')}
-              className={`w-full px-3 py-2 rounded-lg text-sm transition-colors ${
-                analysisDepth === 'basic' ? getActiveClass() : getInactiveClass()
-              }`}
-            >
-              {t.basic}
-            </button>
-            <button
-              onClick={() => setAnalysisDepth('advanced')}
-              className={`w-full px-3 py-2 rounded-lg text-sm transition-colors ${
-                analysisDepth === 'advanced' ? getActiveClass() : getInactiveClass()
-              }`}
-            >
-              {t.advanced}
-            </button>
-          </div>
-        </div>
+
       </div>
     </aside>
   );

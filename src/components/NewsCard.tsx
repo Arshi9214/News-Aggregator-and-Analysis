@@ -171,28 +171,46 @@ export function NewsCard({ article, language, onToggleBookmark, onViewAnalysis, 
           <div className="mb-4">
             <button
               onClick={() => setShowTakeaways(!showTakeaways)}
-              className="w-full flex items-center justify-between px-4 py-2.5 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg transition-colors"
+              className={`w-full flex items-center justify-between px-4 py-2.5 border rounded-lg transition-colors ${
+                themeMode === 'newspaper'
+                  ? 'bg-[#f4e8d0] hover:bg-[#e8dcc8] border-[#8b7355]'
+                  : 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 border-green-200 dark:border-green-800'
+              }`}
               style={{ minHeight: '44px' }}
             >
               <div className="flex items-center gap-2">
-                <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
-                <span className="text-sm sm:text-base font-semibold text-green-700 dark:text-green-300">
+                <Lightbulb className={`h-4 w-4 sm:h-5 sm:w-5 ${
+                  themeMode === 'newspaper' ? 'text-[#5a4a3a]' : 'text-green-600 dark:text-green-400'
+                }`} />
+                <span className={`text-sm sm:text-base font-semibold ${
+                  themeMode === 'newspaper' ? 'text-[#3d2817]' : 'text-green-700 dark:text-green-300'
+                }`}>
                   {t.keyTakeaways}
                 </span>
               </div>
               {showTakeaways ? (
-                <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
+                <ChevronUp className={`h-4 w-4 sm:h-5 sm:w-5 ${
+                  themeMode === 'newspaper' ? 'text-[#5a4a3a]' : 'text-green-600 dark:text-green-400'
+                }`} />
               ) : (
-                <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
+                <ChevronDown className={`h-4 w-4 sm:h-5 sm:w-5 ${
+                  themeMode === 'newspaper' ? 'text-[#5a4a3a]' : 'text-green-600 dark:text-green-400'
+                }`} />
               )}
             </button>
             
             {showTakeaways && (
-              <div className="mt-2 p-4 bg-green-50/50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30 rounded-lg">
+              <div className={`mt-2 p-4 border rounded-lg ${
+                themeMode === 'newspaper'
+                  ? 'bg-[#f9f3e8] border-[#d4c5a9]'
+                  : 'bg-green-50/50 dark:bg-green-900/10 border-green-100 dark:border-green-900/30'
+              }`}>
                 <ul className="space-y-2">
                   {article.analysis?.keyTakeaways?.slice(0, 3).map((takeaway, index) => (
                     <li key={index} className="flex items-start gap-2 text-sm sm:text-base">
-                      <span className="flex-shrink-0 mt-1 h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400" />
+                      <span className={`flex-shrink-0 mt-1 h-1.5 w-1.5 rounded-full ${
+                        themeMode === 'newspaper' ? 'bg-[#5a4a3a]' : 'bg-green-600 dark:bg-green-400'
+                      }`} />
                       <span className="text-gray-700 dark:text-gray-300">{takeaway}</span>
                     </li>
                   ))}

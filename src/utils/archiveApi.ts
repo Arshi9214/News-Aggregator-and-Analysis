@@ -62,20 +62,30 @@ export async function fetchArchiveNews(
     
     // Generate actual historical dates to scrape
     const datesToScrape = generateHistoricalDates(dateRange.from, dateRange.to);
-    console.log(`🗓️ Will scrape ${datesToScrape.length} historical dates`);
+    console.log(`🗓️ Will scrape ${datesToScrape.length} historical dates from multiple sources`);
     
-    for (const date of datesToScrape) {
-      try {
-        const historicalArticles = await scrapeIndianExpressArchive(date, topics, language);
-        if (historicalArticles.length > 0) {
-          allArticles.push(...historicalArticles);
-          onArticlesFound?.(historicalArticles);
+    // Scrape from multiple news sources
+    const archiveSources = [
+      { name: 'indianExpress', scraper: scrapeIndianExpressArchive },
+      { name: 'timesOfIndia', scraper: scrapeTimesOfIndiaArchive }
+    ];
+    
+    for (const source of archiveSources) {
+      onProgress?.(`Fetching ${source.name} archives...`, source.name);
+      
+      for (const date of datesToScrape) {
+        try {
+          const historicalArticles = await source.scraper(date, topics, language);
+          if (historicalArticles.length > 0) {
+            allArticles.push(...historicalArticles);
+            onArticlesFound?.(historicalArticles);
+          }
+          // Small delay between requests
+          await new Promise(resolve => setTimeout(resolve, 800));
+        } catch (error) {
+          console.warn(`Failed to scrape ${source.name} for ${date.toDateString()}:`, error);
+          continue;
         }
-        // Small delay between scraping requests
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      } catch (error) {
-        console.warn(`Failed to scrape ${date.toDateString()}:`, error);
-        continue;
       }
     }
   }
@@ -497,11 +507,69 @@ function cleanHTML(html: string): string {
 }
 
 /**
- * Check if text is English
+ * Scrape Times of India archive for a specific date
  */
-function isEnglish(text: string): boolean {
-  const hindiPattern = /[\u0900-\u097F]/;
-  return !hindiPattern.test(text);
+async function scrapeTimesOfIndiaArchive(
+  date: Date,
+  topics: Topic[],
+  language: Language
+): Promise<NewsArticle[]> {
+  const articles: NewsArticle[] = [];
+  const archiveUrl = `https://timesofindia.indiatimes.com/archive/year-${date.getFullYear()},month-${date.getMonth() + 1}.cms`;
+  
+  console.log(`🔍 Scraping TOI: ${archiveUrl}`);
+  
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const proxiedUrl = proxy + encodeURIComponent(archiveUrl);
+      const response = await fetch(proxiedUrl, {
+        method: 'GET',
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+        signal: AbortSignal.timeout(15000)
+      });
+      
+      if (!response.ok) continue;
+      
+      const html = await response.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      
+      const headlines = doc.querySelectorAll('a[href*=".cms"], .news-item a, h4 a');
+      
+      for (let i = 0; i < Math.min(headlines.length, 15); i++) {
+        const link = headlines[i] as HTMLAnchorElement;
+        const title = link.textContent?.trim() || '';
+        let url = link.href;
+        
+        if (title.length < 10 || !url) continue;
+        if (url.startsWith('/')) url = 'https://timesofindia.indiatimes.com' + url;
+        if (language === 'en' && !isEnglish(title)) continue;
+        
+        const article: NewsArticle = {
+          id: `archive-toi-${date.getTime()}-${i}`,
+          title,
+          content: `${title}. Historical news from Times of India archive.`,
+          summary: `Historical news from ${date.toDateString()}`,
+          source: { name: 'TIMES OF INDIA' },
+          date: date,
+          topics: detectTopics(title, topics),
+          language,
+          url,
+          imageUrl: undefined,
+          bookmarked: false,
+          hasRealContent: false
+        };
+        
+        articles.push(article);
+      }
+      
+      console.log(`📰 TOI: ${articles.length} articles`);
+      break;
+    } catch (error) {
+      continue;
+    }
+  }
+  
+  return articles;
 }
 
 /**
@@ -530,4 +598,12 @@ function detectTopics(content: string, selectedTopics: Topic[]): Topic[] {
   }
   
   return detected.length > 0 ? detected.slice(0, 2) : ['all'];
+}
+
+/**
+ * Check if text is English
+ */
+function isEnglish(text: string): boolean {
+  const hindiPattern = /[\u0900-\u097F]/;
+  return !hindiPattern.test(text);
 }
