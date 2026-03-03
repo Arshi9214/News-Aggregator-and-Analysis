@@ -1,6 +1,8 @@
 import { BookMarked, FileText, TrendingUp, Calendar } from 'lucide-react';
 import { NewsArticle, ProcessedPDF, Language, ThemeMode } from '../App';
 import { NewsCard } from './NewsCard';
+import { DatabaseSettings } from './DatabaseSettings';
+import { useState, useEffect } from 'react';
 
 interface DashboardProps {
   articles: NewsArticle[];
@@ -8,6 +10,7 @@ interface DashboardProps {
   language: Language;
   onViewAnalysis: (item: NewsArticle | ProcessedPDF) => void;
   onToggleBookmark: (id: string) => void;
+  onTogglePDFBookmark: (id: string) => void;
   themeMode?: ThemeMode;
 }
 
@@ -163,11 +166,23 @@ export function Dashboard({
   language,
   onViewAnalysis,
   onToggleBookmark,
+  onTogglePDFBookmark,
   themeMode
 }: DashboardProps) {
+  const [refreshKey, setRefreshKey] = useState(0);
   const t = TRANSLATIONS[language];
   const bookmarkedArticles = articles.filter(a => a.bookmarked);
+  const bookmarkedPDFs = processedPDFs.filter(p => p.bookmarked);
   const recentItems = [...articles.slice(0, 3), ...processedPDFs.slice(0, 2)].slice(0, 5);
+
+  // Trigger refresh when data changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRefreshKey(prev => prev + 1);
+    }, 500); // Small delay to ensure database operations complete
+    
+    return () => clearTimeout(timer);
+  }, [articles.length, processedPDFs.length, bookmarkedArticles.length, bookmarkedPDFs.length]);
 
   return (
     <div className="space-y-6">
@@ -237,7 +252,7 @@ export function Dashboard({
               }`}>{t.bookmarks}</p>
               <p className={`text-3xl font-bold mt-1 ${
                 themeMode === 'newspaper' ? 'text-[#2c1810]' : 'text-gray-900 dark:text-white'
-              }`}>{bookmarkedArticles.length}</p>
+              }`}>{bookmarkedArticles.length + bookmarkedPDFs.length}</p>
             </div>
             <div className={`p-3 rounded-lg ${
               themeMode === 'newspaper' ? 'bg-[#c9b896]' : 'bg-green-100 dark:bg-green-900/20'
@@ -259,13 +274,13 @@ export function Dashboard({
         <h3 className={`text-lg font-semibold mb-4 ${
           themeMode === 'newspaper' ? 'text-[#2c1810]' : 'text-gray-900 dark:text-white'
         }`}>{t.bookmarked}</h3>
-        {bookmarkedArticles.length === 0 ? (
+        {bookmarkedArticles.length === 0 && bookmarkedPDFs.length === 0 ? (
           <p className={`text-center py-8 ${
             themeMode === 'newspaper' ? 'text-[#5a4a3a]' : 'text-gray-500 dark:text-gray-400'
           }`}>{t.noBookmarks}</p>
         ) : (
           <div className="space-y-3">
-            {bookmarkedArticles.slice(0, 5).map(article => (
+            {bookmarkedArticles.slice(0, 3).map(article => (
               <NewsCard
                 key={article.id}
                 article={article}
@@ -275,6 +290,36 @@ export function Dashboard({
                 compact
                 themeMode={themeMode}
               />
+            ))}
+            {bookmarkedPDFs.slice(0, 2).map(pdf => (
+              <div
+                key={pdf.id}
+                className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                onClick={() => onViewAnalysis(pdf)}
+              >
+                <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-1" />
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-gray-900 dark:text-white truncate">{pdf.name}</h4>
+                  <div className="flex items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {pdf.uploadDate.toLocaleDateString()}
+                    </span>
+                    {pdf.pageCount && <span>{pdf.pageCount} pages</span>}
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTogglePDFBookmark(pdf.id);
+                  }}
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <BookMarked className={`h-4 w-4 ${
+                    pdf.bookmarked ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'
+                  }`} />
+                </button>
+              </div>
             ))}
           </div>
         )}
@@ -331,6 +376,13 @@ export function Dashboard({
           </div>
         )}
       </div>
+
+      {/* Database Settings */}
+      <DatabaseSettings 
+        language={language as 'en' | 'hi'} 
+        themeMode={themeMode} 
+        key={refreshKey}
+      />
     </div>
   );
 }

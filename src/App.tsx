@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NewsAggregator } from './components/NewsAggregator';
 import { PDFProcessor } from './components/PDFProcessor';
 import { AnalysisViewer } from './components/AnalysisViewer';
@@ -7,7 +7,11 @@ import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { Onboarding } from './components/Onboarding';
 import { MobileMenu } from './components/MobileMenu';
+import { UserAuth } from './components/UserAuth';
 import { toast, Toaster } from 'sonner';
+import DatabaseService from './utils/database';
+import { useArticles, usePreferences } from './hooks/useDatabase';
+import { UserManager, User } from './utils/userManager';
 
 export type Language = 'en' | 'hi' | 'ta' | 'bn' | 'te' | 'mr' | 'gu' | 'kn' | 'ml' | 'pa' | 'ur';
 export type Topic = 'economy' | 'polity' | 'environment' | 'international' | 'science' | 'society' | 'history' | 'geography' | 'all';
@@ -47,12 +51,14 @@ export interface ProcessedPDF {
   uploadDate: Date;
   analysis?: ArticleAnalysis;
   pageCount?: number;
+  bookmarked?: boolean;
 }
 
 export type ViewMode = 'dashboard' | 'news' | 'pdf' | 'analysis';
 export type ThemeMode = 'light' | 'dark' | 'newspaper';
 
 function App() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
   const [language, setLanguage] = useState<Language>('en');
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>(['all']);
@@ -62,7 +68,42 @@ function App() {
   const [selectedItem, setSelectedItem] = useState<NewsArticle | ProcessedPDF | null>(null);
   const [themeMode, setThemeMode] = useState<ThemeMode>('light');
 
-  const toggleBookmark = (articleId: string) => {
+  // Check for existing user on app start
+  useEffect(() => {
+    const user = UserManager.getCurrentUser();
+    if (user) {
+      setCurrentUser(user);
+    }
+  }, []);
+
+  // Database hooks
+  const { saveArticles, toggleBookmark: dbToggleBookmark } = useArticles();
+  const { preferences, savePreferences } = usePreferences();
+
+  // Load preferences on startup
+  useEffect(() => {
+    if (preferences) {
+      setLanguage(preferences.language);
+      setSelectedTopics(preferences.selectedTopics);
+      setThemeMode(preferences.themeMode);
+      setAnalysisDepth(preferences.analysisDepth);
+    }
+  }, [preferences]);
+
+  // Save preferences when they change
+  useEffect(() => {
+    if (preferences) { // Only save if preferences have been loaded
+      savePreferences({
+        language,
+        selectedTopics,
+        themeMode,
+        analysisDepth
+      });
+    }
+  }, [language, selectedTopics, themeMode, analysisDepth, preferences, savePreferences]);
+
+  const toggleBookmark = async (articleId: string) => {
+    // Update local state immediately for better UX
     setArticles(prev =>
       prev.map(article =>
         article.id === articleId
@@ -70,25 +111,96 @@ function App() {
           : article
       )
     );
-  };
-
-  const addArticles = (newArticles: NewsArticle[] | ((prev: NewsArticle[]) => NewsArticle[])) => {
-    console.log('📥 addArticles called with:', typeof newArticles === 'function' ? 'function' : `${newArticles.length} articles`);
-    if (typeof newArticles === 'function') {
-      setArticles(newArticles);
-    } else {
-      console.log('✅ Setting articles to:', newArticles.length);
-      setArticles(newArticles);
+    
+    // Save to database
+    try {
+      await dbToggleBookmark(articleId);
+    } catch (error) {
+      console.error('Failed to save bookmark to database:', error);
+      // Revert local state on error
+      setArticles(prev =>
+        prev.map(article =>
+          article.id === articleId
+            ? { ...article, bookmarked: !article.bookmarked }
+            : article
+        )
+      );
+      toast.error('Failed to save bookmark');
     }
   };
 
-  const addProcessedPDF = (pdf: ProcessedPDF) => {
-    setProcessedPDFs(prev => [pdf, ...prev]);
+  const togglePDFBookmark = async (pdfId: string) => {
+    setProcessedPDFs(prev =>
+      prev.map(pdf =>
+        pdf.id === pdfId
+          ? { ...pdf, bookmarked: !pdf.bookmarked }
+          : pdf
+      )
+    );
+    
+    try {
+      await DatabaseService.togglePDFBookmark(pdfId);
+    } catch (error) {
+      console.error('Failed to save PDF bookmark:', error);
+      setProcessedPDFs(prev =>
+        prev.map(pdf =>
+          pdf.id === pdfId
+            ? { ...pdf, bookmarked: !pdf.bookmarked }
+            : pdf
+        )
+      );
+      toast.error('Failed to save bookmark');
+    }
   };
 
-  const deletePDF = (pdfId: string) => {
+  const addArticles = async (newArticles: NewsArticle[] | ((prev: NewsArticle[]) => NewsArticle[])) => {
+    console.log('📥 addArticles called with:', typeof newArticles === 'function' ? 'function' : `${newArticles.length} articles`);
+    
+    let articlesToSave: NewsArticle[];
+    
+    if (typeof newArticles === 'function') {
+      setArticles(newArticles);
+      articlesToSave = newArticles([]);
+    } else {
+      console.log('✅ Setting articles to:', newArticles.length);
+      setArticles(newArticles);
+      articlesToSave = newArticles;
+    }
+    
+    // Save to database in background
+    try {
+      await saveArticles(articlesToSave);
+      console.log('💾 Articles saved to database');
+    } catch (error) {
+      console.error('Failed to save articles to database:', error);
+      // Don't show error to user as this is background operation
+    }
+  };
+
+  const addProcessedPDF = async (pdf: ProcessedPDF) => {
+    setProcessedPDFs(prev => [pdf, ...prev]);
+    
+    // Save to database
+    try {
+      await DatabaseService.savePDF(pdf);
+      console.log('💾 PDF saved to database');
+    } catch (error) {
+      console.error('Failed to save PDF to database:', error);
+      toast.error('Failed to save PDF to database');
+    }
+  };
+
+  const deletePDF = async (pdfId: string) => {
     setProcessedPDFs(prev => prev.filter(pdf => pdf.id !== pdfId));
-    toast.success('PDF deleted successfully!');
+    
+    // Delete from database
+    try {
+      await DatabaseService.deletePDF(pdfId);
+      toast.success('PDF deleted successfully!');
+    } catch (error) {
+      console.error('Failed to delete PDF from database:', error);
+      toast.error('Failed to delete PDF from database');
+    }
   };
 
   const viewAnalysis = (item: NewsArticle | ProcessedPDF) => {
@@ -106,6 +218,34 @@ function App() {
   };
 
   const bookmarkedArticles = articles.filter(a => a.bookmarked);
+  const bookmarkedPDFs = processedPDFs.filter(p => p.bookmarked);
+
+  const handleUserLogin = (user: User) => {
+    setCurrentUser(user);
+    UserManager.setCurrentUser(user);
+  };
+
+  const handleLogout = () => {
+    UserManager.logout();
+    setCurrentUser(null);
+    setArticles([]);
+    setProcessedPDFs([]);
+    setViewMode('dashboard');
+  };
+
+  // Show user authentication if no user is logged in
+  if (!currentUser) {
+    return (
+      <>
+        <UserAuth 
+          language={language}
+          onUserLogin={handleUserLogin}
+          themeMode={themeMode}
+        />
+        <Toaster />
+      </>
+    );
+  }
 
   return (
     <div className={themeMode === 'dark' ? 'dark' : themeMode === 'newspaper' ? 'newspaper' : ''}>
@@ -122,7 +262,7 @@ function App() {
         darkMode={themeMode === 'dark'}
         onToggleDarkMode={() => setThemeMode(themeMode === 'dark' ? 'light' : 'dark')}
         onLanguageChange={setLanguage}
-        bookmarkCount={bookmarkedArticles.length}
+        bookmarkCount={bookmarkedArticles.length + bookmarkedPDFs.length}
         onNavigate={handleNavigate}
         currentSection={viewMode}
       />
@@ -139,6 +279,8 @@ function App() {
           setDarkMode={(dark) => setThemeMode(dark ? 'dark' : 'light')}
           themeMode={themeMode}
           setThemeMode={setThemeMode}
+          currentUser={currentUser}
+          onLogout={handleLogout}
         />
         
         <div className="flex">
@@ -161,6 +303,7 @@ function App() {
                 language={language}
                 onViewAnalysis={viewAnalysis}
                 onToggleBookmark={toggleBookmark}
+                onTogglePDFBookmark={togglePDFBookmark}
                 themeMode={themeMode}
               />
             )}
@@ -186,6 +329,7 @@ function App() {
                 processedPDFs={processedPDFs}
                 onViewAnalysis={viewAnalysis}
                 onDeletePDF={deletePDF}
+                onToggleBookmark={togglePDFBookmark}
                 themeMode={themeMode}
               />
             )}

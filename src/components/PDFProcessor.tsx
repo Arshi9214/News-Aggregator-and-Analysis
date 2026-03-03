@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, FileText, Trash2, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, FileText, Trash2, Loader2, CheckCircle, AlertCircle, Bookmark } from 'lucide-react';
 import { ProcessedPDF, AnalysisDepth, Language, ThemeMode } from '../App';
 import { extractTextFromPDF, analyzePDFContent as analyzePDFStructure } from '../utils/pdfParser';
 import { analyzeContentWithAI } from '../utils/aiAnalyzer';
@@ -12,6 +12,7 @@ interface PDFProcessorProps {
   processedPDFs: ProcessedPDF[];
   onViewAnalysis: (pdf: ProcessedPDF) => void;
   onDeletePDF: (id: string) => void;
+  onToggleBookmark: (id: string) => void;
   themeMode?: ThemeMode;
 }
 
@@ -190,6 +191,7 @@ export function PDFProcessor({
   processedPDFs,
   onViewAnalysis,
   onDeletePDF,
+  onToggleBookmark,
   themeMode
 }: PDFProcessorProps) {
   const t = TRANSLATIONS[language];
@@ -481,6 +483,15 @@ export function PDFProcessor({
                         }`}
                       >
                         {t.viewAnalysis}
+                      </button>
+                      <button
+                        onClick={() => onToggleBookmark(pdf.id)}
+                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        title="Bookmark"
+                      >
+                        <Bookmark className={`h-4 w-4 ${
+                          pdf.bookmarked ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'
+                        }`} />
                       </button>
                       <button
                         className="px-4 py-2 bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg transition-colors text-sm"

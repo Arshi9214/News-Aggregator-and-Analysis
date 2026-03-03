@@ -1,358 +1,47 @@
-/// <reference types="vite/client" />
 import { NewsArticle, Topic, Language } from '../App';
 import { generateLightweightSummary } from './groqApi';
 import { fetchRSSNews, generateRSSSummary } from './rssApi';
-import { fetchArchiveNews } from './archiveApi';
 
-/**
- * Multi-source News API Integration with Fallback
- * Priority for India news:
- * - RSS Feeds (unlimited, real-time, no delay) → Primary for 24h
- * - Last 24h & Last week: NewsData.io (200 credits/day, 12h delay) → GNews → WorldNews
- * - Last month: GNews (100 req/day, 30-day history) → NewsData.io → WorldNews
- */
-
-// API Keys Configuration
-const WORLD_NEWS_API_KEY = import.meta.env.VITE_WORLD_NEWS_API_KEY || 'YOUR_WORLDNEWS_API_KEY_HERE';
-const NEWSDATA_API_KEY = import.meta.env.VITE_NEWSDATA_API_KEY || 'YOUR_NEWSDATA_API_KEY_HERE';
-const GNEWS_API_KEY = import.meta.env.VITE_GNEWS_API_KEY || 'YOUR_GNEWS_API_KEY_HERE';
-
-type NewsSource = 'worldnews' | 'newsdata' | 'gnews';
-
-/**
- * Topic to keywords mapping for Indian context
- */
+// Topic keywords for better categorization
 const TOPIC_KEYWORDS: Record<Topic, string[]> = {
-  all: ['India', 'भारत', 'news'],
-  economy: ['economy', 'GDP', 'RBI', 'budget', 'अर्थव्यवस्था'],
-  polity: ['government', 'parliament', 'politics', 'सरकार', 'राजनीति'],
-  environment: ['environment', 'climate', 'pollution', 'पर्यावरण'],
-  international: ['foreign policy', 'international', 'विदेश नीति'],
-  science: ['technology', 'science', 'ISRO', 'विज्ञान'],
-  society: ['education', 'health', 'society', 'समाज', 'शिक्षा'],
-  history: ['history', 'heritage', 'इतिहास'],
-  geography: ['geography', 'भूगोल', 'natural resources']
+  all: [],
+  economy: ['economy', 'economic', 'gdp', 'rbi', 'budget', 'market', 'finance', 'banking', 'investment', 'inflation', 'rupee', 'stock', 'trade'],
+  polity: ['government', 'parliament', 'politics', 'election', 'minister', 'policy', 'governance', 'democracy', 'constitution', 'supreme court', 'high court'],
+  environment: ['environment', 'climate', 'pollution', 'green', 'carbon', 'renewable', 'solar', 'wind', 'forest', 'wildlife', 'conservation'],
+  international: ['foreign', 'international', 'global', 'world', 'diplomatic', 'embassy', 'treaty', 'bilateral', 'multilateral', 'UN', 'NATO'],
+  science: ['technology', 'science', 'isro', 'research', 'innovation', 'AI', 'space', 'satellite', 'digital', 'cyber', 'internet'],
+  society: ['education', 'health', 'society', 'social', 'welfare', 'poverty', 'employment', 'healthcare', 'hospital', 'school', 'university'],
+  history: ['history', 'heritage', 'ancient', 'historical', 'archaeological', 'monument', 'culture', 'tradition', 'civilization'],
+  geography: ['geography', 'natural', 'resources', 'region', 'river', 'mountain', 'state', 'district', 'border', 'map']
 };
 
 /**
- * Language codes mapping
+ * Main function to fetch news from RSS feeds
+ * This replaces the paid API approach with free RSS feeds
  */
-const LANGUAGE_CODES: Record<Language, { worldnews: string; newsdata: string; gnews: string }> = {
-  en: { worldnews: 'en', newsdata: 'en', gnews: 'en' },
-  hi: { worldnews: 'hi', newsdata: 'hi', gnews: 'hi' },
-  ta: { worldnews: 'ta', newsdata: 'ta', gnews: 'en' },
-  bn: { worldnews: 'bn', newsdata: 'bn', gnews: 'en' },
-  te: { worldnews: 'te', newsdata: 'te', gnews: 'en' },
-  mr: { worldnews: 'mr', newsdata: 'mr', gnews: 'en' },
-  gu: { worldnews: 'gu', newsdata: 'gu', gnews: 'en' },
-  kn: { worldnews: 'kn', newsdata: 'kn', gnews: 'en' },
-  ml: { worldnews: 'ml', newsdata: 'ml', gnews: 'en' },
-  pa: { worldnews: 'pa', newsdata: 'pa', gnews: 'en' },
-  ur: { worldnews: 'ur', newsdata: 'ur', gnews: 'en' }
-};
-
-/**
- * Fetch news with automatic fallback
- */
-export async function fetchNewsWithFallback(
+export async function fetchNews(
   topics: Topic[],
   dateRange: { from: Date; to: Date },
   language: Language,
-  onProgress?: (status: string, source: NewsSource | 'rss' | 'archive') => void,
-  onArticlesFound?: (articles: NewsArticle[]) => void
+  onProgressUpdate?: (articles: NewsArticle[]) => void
 ): Promise<NewsArticle[]> {
-  // For ≤7 days, try RSS first (unlimited, real-time)
-  const daysDiff = (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
-  console.log(`📅 Date range difference: ${daysDiff.toFixed(2)} days`);
+  console.log('🚀 Starting RSS news fetch...', { topics, dateRange, language });
   
-  if (daysDiff <= 7.5) {
-    try {
-      console.log('🔄 Attempting RSS FEEDS (unlimited, real-time)');
-      onProgress?.('Fetching from RSS feeds...', 'rss');
-      
-      const rssArticles = await fetchRSSNews(topics, language, dateRange, onArticlesFound);
-      console.log(`📰 RSS returned ${rssArticles.length} articles`);
-      
-      if (rssArticles.length > 0) {
-        console.log(`✅ SUCCESS: RSS returned ${rssArticles.length} articles`);
-        onProgress?.(`Success! Loaded ${rssArticles.length} articles from RSS`, 'rss');
-        return rssArticles;
-      } else {
-        console.log('⚠️ RSS returned 0 articles, falling back to APIs');
-      }
-    } catch (error: any) {
-      console.error('❌ RSS FAILED:', error.message, error);
-      onProgress?.('RSS failed, trying API sources...', 'rss');
-    }
-  } else {
-    console.log(`⏭️ Skipping RSS (${daysDiff.toFixed(2)} days > 7.5 day threshold)`);
-    console.log('🔍 Archive system check: fetchArchiveNews function exists:', typeof fetchArchiveNews);
-    
-    // For longer ranges, try archive sources first
-    try {
-      console.log('🔄 Attempting NEWS ARCHIVES (unlimited historical data)');
-      onProgress?.('Fetching from news archives...', 'archive');
-      
-      const archiveArticles = await fetchArchiveNews(topics, dateRange, language, (status, source) => {
-        console.log(`📚 Archive progress: ${status} (${source})`);
-        onProgress?.(status, 'archive');
-      }, onArticlesFound);
-      console.log(`📚 Archives returned ${archiveArticles.length} articles`);
-      
-      if (archiveArticles.length > 0) {
-        console.log(`✅ SUCCESS: Archives returned ${archiveArticles.length} articles`);
-        onProgress?.(`Success! Loaded ${archiveArticles.length} articles from archives`, 'archive');
-        return archiveArticles;
-      } else {
-        console.log('⚠️ Archives returned 0 articles, falling back to APIs');
-      }
-    } catch (error: any) {
-      console.error('❌ ARCHIVES FAILED:', error.message, error);
-      console.error('Archive error stack:', error.stack);
-      onProgress?.('Archives failed, trying API sources...', 'archive');
-    }
-  }
-  
-  // Fallback to API sources
-  const sources: NewsSource[] = daysDiff > 7 
-    ? ['gnews', 'newsdata', 'worldnews']
-    : ['newsdata', 'gnews', 'worldnews'];
-  
-  for (const source of sources) {
-    try {
-      const apiKeyPreview = source === 'worldnews' ? `...${WORLD_NEWS_API_KEY.slice(-4)}` :
-                           source === 'newsdata' ? `...${NEWSDATA_API_KEY.slice(-4)}` :
-                           `...${GNEWS_API_KEY.slice(-4)}`;
-      
-      console.log(`🔄 Attempting ${source.toUpperCase()} API (Key: ${apiKeyPreview})`);
-      onProgress?.(`Trying ${source}...`, source);
-      
-      const articles = await fetchFromSource(source, topics, dateRange, language);
-      
-      if (articles.length > 0) {
-        console.log(`✅ SUCCESS: ${source.toUpperCase()} returned ${articles.length} articles`);
-        onProgress?.(`Success! Loaded ${articles.length} articles from ${source}`, source);
-        return articles;
-      }
-    } catch (error: any) {
-      console.error(`❌ ${source.toUpperCase()} FAILED:`, error.message);
-      onProgress?.(`${source} failed, trying next source...`, source);
-      continue;
-    }
-  }
-  
-  throw new Error('All news sources failed. Please check your API keys and try again.');
-}
-
-/**
- * Fetch from specific source
- */
-async function fetchFromSource(
-  source: NewsSource,
-  topics: Topic[],
-  dateRange: { from: Date; to: Date },
-  language: Language
-): Promise<NewsArticle[]> {
-  switch (source) {
-    case 'worldnews':
-      return fetchFromWorldNews(topics, dateRange, language);
-    case 'newsdata':
-      return fetchFromNewsData(topics, dateRange, language);
-    case 'gnews':
-      return fetchFromGNews(topics, dateRange, language);
-    default:
-      throw new Error(`Unknown source: ${source}`);
-  }
-}
-
-/**
- * WorldNewsAPI (Primary - 500+ requests/day, 1-month historical)
- */
-async function fetchFromWorldNews(
-  topics: Topic[],
-  dateRange: { from: Date; to: Date },
-  language: Language
-): Promise<NewsArticle[]> {
-  if (WORLD_NEWS_API_KEY === 'YOUR_WORLDNEWS_API_KEY_HERE') {
-    throw new Error('WorldNewsAPI key not configured');
-  }
-
-  const keywords = getKeywords(topics, language);
-  const langCode = 'en';
-  
-  const params = new URLSearchParams({
-    'api-key': WORLD_NEWS_API_KEY,
-    'text': keywords,
-    'source-countries': 'in',
-    'language': langCode,
-    'earliest-publish-date': dateRange.from.toISOString().split('T')[0],
-    'latest-publish-date': dateRange.to.toISOString().split('T')[0],
-    'sort': 'publish-time',
-    'sort-direction': 'DESC',
-    'number': '30'
-  });
-
-  const response = await fetch(
-    `https://api.worldnewsapi.com/search-news?${params}`
-  );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('WorldNewsAPI error details:', errorText);
-    throw new Error(`WorldNewsAPI error: ${response.status} - ${errorText}`);
-  }
-
-  const data = await response.json();
-  
-  return (data.news || []).map((article: any) => convertWorldNewsArticle(article, topics, language));
-}
-
-/**
- * NewsData.io (Primary for recent - 200 credits/day, 12h delay)
- */
-async function fetchFromNewsData(
-  topics: Topic[],
-  dateRange: { from: Date; to: Date },
-  language: Language
-): Promise<NewsArticle[]> {
-  if (NEWSDATA_API_KEY === 'YOUR_NEWSDATA_API_KEY_HERE') {
-    throw new Error('NewsData.io key not configured');
-  }
-
-  const keywords = getKeywords(topics, language);
-  const langCode = 'en';
-  
-  const params = new URLSearchParams({
-    apikey: NEWSDATA_API_KEY,
-    q: keywords,
-    country: 'in',
-    language: langCode,
-    size: '30'
-  });
-
-  const response = await fetch(
-    `https://newsdata.io/api/1/news?${params}`
-  );
-
-  if (!response.ok) {
-    throw new Error(`NewsData.io error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  
-  if (data.status !== 'success') {
-    throw new Error(data.message || 'NewsData.io request failed');
-  }
-  
-  return (data.results || []).map((article: any) => convertNewsDataArticle(article, topics, language));
-}
-
-/**
- * GNews (Primary for monthly - 100 req/day, 30-day history, 12h delay)
- * For monthly ranges, make multiple requests to get better coverage
- */
-async function fetchFromGNews(
-  topics: Topic[],
-  dateRange: { from: Date; to: Date },
-  language: Language
-): Promise<NewsArticle[]> {
-  if (GNEWS_API_KEY === 'YOUR_GNEWS_API_KEY_HERE') {
-    throw new Error('GNews key not configured');
-  }
-
-  const keywords = getKeywords(topics, language);
-  const langCode = 'en';
-  const daysDiff = (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
-  
-  let allArticles: NewsArticle[] = [];
-  
-  // For monthly ranges, make multiple requests with different keywords to get better coverage
-  if (daysDiff > 14) {
-    const keywordSets = [
-      'India government policy',
-      'India economy budget',
-      'India international relations',
-      'India technology science',
-      'India environment climate',
-      'India society education health'
-    ];
-    
-    for (const keywordSet of keywordSets) {
-      try {
-        const params = new URLSearchParams({
-          apikey: GNEWS_API_KEY,
-          q: keywordSet,
-          country: 'in',
-          lang: langCode,
-          max: '10',
-          from: dateRange.from.toISOString(),
-          to: dateRange.to.toISOString()
-        });
-
-        const response = await fetch(
-          `https://gnews.io/api/v4/search?${params}`
-        );
-
-        if (!response.ok) continue;
-
-        const data = await response.json();
-        
-        if (data.errors) continue;
-        
-        const articles = (data.articles || []).map((article: any) => convertGNewsArticle(article, topics, language));
-        allArticles.push(...articles);
-        
-        // Small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
-      } catch (error) {
-        console.warn('GNews keyword request failed:', error);
-        continue;
-      }
-    }
-  } else {
-    // For shorter ranges, use single request
-    const params = new URLSearchParams({
-      apikey: GNEWS_API_KEY,
-      q: keywords,
-      country: 'in',
-      lang: langCode,
-      max: '10',
-      from: dateRange.from.toISOString(),
-      to: dateRange.to.toISOString()
-    });
-
-    const response = await fetch(
-      `https://gnews.io/api/v4/search?${params}`
+  try {
+    // Use RSS feeds as primary source
+    const articles = await fetchRSSNews(
+      topics,
+      language,
+      dateRange,
+      onProgressUpdate
     );
-
-    if (!response.ok) {
-      throw new Error(`GNews error: ${response.status}`);
-    }
-
-    const data = await response.json();
     
-    if (data.errors) {
-      throw new Error(data.errors[0] || 'GNews request failed');
-    }
-    
-    allArticles = (data.articles || []).map((article: any) => convertGNewsArticle(article, topics, language));
+    console.log(`✅ RSS fetch completed: ${articles.length} articles`);
+    return articles;
+  } catch (error) {
+    console.error('❌ RSS fetch failed:', error);
+    return [];
   }
-  
-  // Remove duplicates based on URL
-  const uniqueArticles = allArticles.filter((article, index, self) => 
-    index === self.findIndex(a => a.url === article.url)
-  );
-  
-  // Filter by date range and topics
-  const filtered = uniqueArticles.filter((article: NewsArticle) => {
-    const articleDate = article.date.getTime();
-    const inDateRange = articleDate >= dateRange.from.getTime() && articleDate <= dateRange.to.getTime();
-    const hasRelevantTopic = topics.includes('all') || article.topics.some(t => topics.includes(t));
-    return inDateRange && hasRelevantTopic;
-  });
-  
-  console.log(`GNews: Received ${allArticles.length} articles, filtered to ${filtered.length} unique articles within date range`);
-  return filtered.sort((a, b) => b.date.getTime() - a.date.getTime());
 }
 
 /**
@@ -398,81 +87,8 @@ export async function generateArticleSummary(
 }
 
 /**
- * Convert WorldNewsAPI article
- */
-function convertWorldNewsArticle(article: any, topics: Topic[], language: Language): NewsArticle {
-  return {
-    id: article.id?.toString() || generateId(),
-    title: article.title || 'Untitled',
-    content: article.text || article.summary || '',
-    summary: article.summary || '',
-    source: { name: article.source?.name || article.source || 'News Source' },
-    date: new Date(article.publish_date || Date.now()),
-    topics: detectTopics(article.title + ' ' + article.text, topics),
-    language,
-    url: article.url,
-    imageUrl: article.image,
-    bookmarked: false
-  };
-}
-
-/**
- * Convert NewsData.io article
- */
-function convertNewsDataArticle(article: any, topics: Topic[], language: Language): NewsArticle {
-  return {
-    id: article.article_id || generateId(),
-    title: article.title || 'Untitled',
-    content: article.content || article.description || '',
-    summary: article.description || '',
-    source: { name: article.source_id || 'Unknown' },
-    date: new Date(article.pubDate || Date.now()),
-    topics: detectTopics(article.title + ' ' + article.content, topics),
-    language,
-    url: article.link,
-    imageUrl: article.image_url,
-    bookmarked: false
-  };
-}
-
-/**
- * Convert GNews article
- */
-function convertGNewsArticle(article: any, topics: Topic[], language: Language): NewsArticle {
-  const uniqueId = `gnews-${article.url?.split('/').pop() || article.title?.substring(0, 20).replace(/\s+/g, '-') || 'article'}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
-  return {
-    id: uniqueId,
-    title: article.title || 'Untitled',
-    content: article.content || article.description || '',
-    summary: article.description || '',
-    source: { name: article.source?.name || 'Unknown' },
-    date: new Date(article.publishedAt || Date.now()),
-    topics: detectTopics(article.title + ' ' + article.content, topics),
-    language,
-    url: article.url,
-    imageUrl: article.image,
-    bookmarked: false
-  };
-}
-
-/**
  * Helper functions
  */
-function getKeywords(topics: Topic[], language: Language): string {
-  const activeTopics = topics.includes('all') 
-    ? ['economy', 'polity', 'environment', 'science'] as Topic[]
-    : topics;
-  
-  // Use only English keywords regardless of language
-  const keywords = activeTopics
-    .flatMap(topic => TOPIC_KEYWORDS[topic].filter(kw => !/[\u0900-\u097F\u0980-\u09FF]/.test(kw)))
-    .filter(Boolean)
-    .slice(0, 5);
-  
-  return keywords.join(' OR ');
-}
-
 function detectTopics(content: string, selectedTopics: Topic[]): Topic[] {
   const lowerContent = content.toLowerCase();
   const detected: Topic[] = [];
@@ -493,7 +109,7 @@ function detectTopics(content: string, selectedTopics: Topic[]): Topic[] {
 }
 
 function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${Math.random().toString(36).substr(2, 9)}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 /**

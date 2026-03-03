@@ -2,10 +2,11 @@ import { useState, useCallback, useEffect } from 'react';
 import { RefreshCw, Search, Download, Loader2, Clock, Plus, FileDown, ArrowUp } from 'lucide-react';
 import { NewsArticle, Topic, AnalysisDepth, Language, ThemeMode } from '../App';
 import { NewsCard } from './NewsCard';
-import { fetchNewsWithFallback, getDateRange } from '../utils/multiNewsApi';
+import { fetchNews, getDateRange } from '../utils/multiNewsApi';
 import { generateLightweightSummary } from '../utils/groqApi';
 import { exportNewsToPDF } from '../utils/pdfExporter';
 import { toast } from 'sonner';
+import DatabaseService from '../utils/database';
 
 interface NewsAggregatorProps {
   language: Language;
@@ -312,11 +313,10 @@ export function NewsAggregator({
         };
       }
       
-      const fetchedArticles = await fetchNewsWithFallback(
+      const fetchedArticles = await fetchNews(
         selectedTopics,
         dates,
         language,
-        (status) => setFetchStatus(status),
         // Progressive loading callback
         (newArticles) => {
           console.log(`🔄 Progressive update: ${newArticles.length} new articles`);
@@ -381,6 +381,22 @@ export function NewsAggregator({
       ? b.date.getTime() - a.date.getTime()
       : a.date.getTime() - b.date.getTime();
   });
+  
+  // Save search to database when search query changes with debounce
+  useEffect(() => {
+    if (searchQuery.trim() && filteredArticles.length > 0) {
+      const timeoutId = setTimeout(async () => {
+        try {
+          await DatabaseService.saveSearchHistory(searchQuery, filteredArticles.length);
+          console.log('Search saved to database:', searchQuery);
+        } catch (error) {
+          console.error('Failed to save search history:', error);
+        }
+      }, 1000); // Debounce for 1 second
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchQuery, filteredArticles.length]);
   
   console.log('📋 Articles in component:', articles.length, 'Filtered:', filteredArticles.length);
 

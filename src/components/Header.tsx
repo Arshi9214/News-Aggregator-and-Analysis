@@ -1,5 +1,7 @@
-import { Moon, Sun, Globe, Newspaper } from 'lucide-react';
+import { Moon, Sun, Globe, Newspaper, LogOut, User } from 'lucide-react';
 import { Language, ThemeMode } from '../App';
+import { User as UserType } from '../utils/userManager';
+import UserDropdown from './UserDropdown';
 
 interface HeaderProps {
   language: Language;
@@ -8,6 +10,8 @@ interface HeaderProps {
   setDarkMode: (mode: boolean) => void;
   themeMode?: ThemeMode;
   setThemeMode?: (mode: ThemeMode) => void;
+  currentUser?: UserType;
+  onLogout?: () => void;
 }
 
 const LANGUAGES = {
@@ -71,7 +75,7 @@ const TRANSLATIONS = {
   }
 };
 
-export function Header({ language, setLanguage, darkMode, setDarkMode, themeMode, setThemeMode }: HeaderProps) {
+export function Header({ language, setLanguage, darkMode, setDarkMode, themeMode, setThemeMode, currentUser, onLogout }: HeaderProps) {
   const t = TRANSLATIONS[language];
 
   return (
@@ -121,6 +125,18 @@ export function Header({ language, setLanguage, darkMode, setDarkMode, themeMode
                 ))}
               </select>
             </div>
+            
+            {/* User Info & Dropdown */}
+            {currentUser && (
+              <div className="relative">
+                <UserDropdown 
+                  currentUser={currentUser}
+                  onLogout={onLogout!}
+                  themeMode={themeMode}
+                  language={language}
+                />
+              </div>
+            )}
             
             {/* Theme Toggle Buttons */}
             <div className="flex gap-2">

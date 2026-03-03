@@ -1,46 +1,44 @@
 # AI News Summarizer App 2.0
 
-Transform news into knowledge. Your intelligent companion for staying informed with AI-powered analysis and multi-language support.
+<div align="center">
 
-[![React](https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6.3.5-646CFF?logo=vite)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+![AI News Analyzer](https://img.shields.io/badge/AI%20News%20Analyzer-2.0-blue?style=for-the-badge&logo=react)
+[![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6.3.5-646CFF?style=for-the-badge&logo=vite)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+
+**Transform news into knowledge. Your intelligent companion for staying informed with AI-powered analysis and multi-language support.**
+
+[Features](#features) • [Quick Start](#quick-start) • [Setup](#setup) • [Screenshots](#screenshots) • [Contributing](#contributing)
+
+</div>
 
 ---
 
 ## Features
 
-### Smart Multi-Source News Aggregation
-- **RSS Feed Integration**: Direct feeds from 8+ major Indian news sources (TOI, The Hindu, Indian Express, etc.)
-- **CORS Proxy System**: Automatic fallback across multiple proxies for reliable access
-- Smart date range filtering (24h, 7 days, 30 days, custom)
-- Real-time duplicate detection with unique IDs
-- Language filtering (English/Hindi detection)
+### Core Features
+- **AI-Powered Analysis** - Groq API integration with smart key rotation
+- **11 Language Support** - English, Hindi, Tamil, Bengali, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Urdu
+- **Real-time RSS Feeds** - 8+ major Indian news sources with CORS proxy fallback
+- **PDF Processing** - Upload, analyze, and summarize PDF documents
+- **Secure Authentication** - One device, one account policy with password protection
+- **Local Database** - IndexedDB with user isolation and data persistence
 
-### AI-Powered Analysis
-- **Groq API** integration with 3-key rotation for rate limit handling
-- Lightweight summaries with key takeaways
-- Exam-relevant insights extraction
-- Sentiment analysis
+### User Experience
+- **3 Theme Modes** - Light, Dark, and Newspaper themes
+- **Fully Responsive** - Mobile, tablet, and desktop optimized
+- **Progressive Loading** - Real-time article updates as they load
+- **Smart Bookmarking** - Save and organize your favorite articles
+- **Advanced Search** - Filter by topics, date ranges, and keywords
+- **Analytics Dashboard** - Track your reading habits and statistics
 
-### PDF Processing
-- Upload and analyze PDF documents
-- Extract text with **PDF.js**
-- AI-powered content summarization
-- Export analyzed content
-
-### 11 Language Support
-English • Hindi • Tamil • Bengali • Telugu • Marathi • Gujarati • Kannada • Malayalam • Punjabi • Urdu
-
-### Topic Categories
-Economy • Polity • Environment • International Relations • Science & Tech • Society • History • Geography
-
-### Modern UI/UX
-- Dark mode support
-- Responsive design (mobile, tablet, desktop)
-- Smooth animations with Tailwind CSS v3
-- Radix UI components for accessibility
+### Security & Privacy
+- **Password Protection** - Secure account creation and login
+- **User Isolation** - Complete data separation between accounts
+- **Account Management** - Delete account with all associated data
+- **Local Storage** - All data stored locally on your device
 
 ---
 
@@ -48,13 +46,13 @@ Economy • Polity • Environment • International Relations • Science & Tec
 
 ### Prerequisites
 - **Node.js** 18+ and npm
-- API Keys (see [API Setup](#-api-setup))
+- **Groq API Keys** (free tier available)
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/your-username/ai-news-summarizer-2.0.git
 cd "AI News Summarizer App 2.0"
 
 # Install dependencies
@@ -62,43 +60,35 @@ npm install
 
 # Configure environment variables
 cp .env.example .env
-# Edit .env with your API keys
+# Add your Groq API keys to .env
 
 # Start development server
 npm run dev
 ```
 
-Visit http://localhost:3000
+Visit `http://localhost:3000` and start exploring!
 
 ---
 
-## API Setup
+## Setup
 
-### Required API
+### API Configuration
 
-#### **Groq API** (AI Analysis) - REQUIRED
-- **Free Tier**: Generous limits with fast inference
-- **Get Keys**: [console.groq.com](https://console.groq.com)
-- **Add to `.env`**:
-  ```env
-  VITE_GROQ_API_KEY=your_key_1
-  VITE_GROQ_API_KEY_2=your_key_2
-  VITE_GROQ_API_KEY_3=your_key_3
-  ```
-- **Note**: Multiple keys enable automatic rotation to avoid rate limits
-
-### `.env` Template
+#### Groq API (Required for AI Analysis)
+1. Visit [console.groq.com](https://console.groq.com)
+2. Create a free account
+3. Generate 3 API keys for rotation
+4. Add to your `.env` file:
 
 ```env
-# AI Analysis (Groq) - REQUIRED
 VITE_GROQ_API_KEY=your_groq_key_1
 VITE_GROQ_API_KEY_2=your_groq_key_2
 VITE_GROQ_API_KEY_3=your_groq_key_3
 ```
 
-### News Sources (No API Keys Needed)
+### News Sources (No Setup Required)
 
-The app uses **RSS feeds** from major Indian news sources:
+The app automatically fetches from these trusted sources:
 - **Times of India** (TOI)
 - **The Hindu**
 - **Indian Express**
@@ -108,12 +98,7 @@ The app uses **RSS feeds** from major Indian news sources:
 - **The Wire**
 - **India Today**
 
-**Benefits:**
-- No API keys required for news
-- No rate limits or quotas
-- Real-time news updates
-- Direct from trusted sources
-- Automatic CORS proxy fallback
+No API keys needed • No rate limits • Real-time updates
 
 ---
 
@@ -123,178 +108,173 @@ The app uses **RSS feeds** from major Indian news sources:
 AI News Summarizer App 2.0/
 ├── src/
 │   ├── components/          # React components
-│   │   ├── ui/             # Reusable UI components (Radix)
-│   │   ├── Dashboard.tsx   # Main dashboard
-│   │   ├── NewsAggregator.tsx
-│   │   ├── PDFProcessor.tsx
-│   │   ├── AnalysisViewer.tsx
-│   │   ├── Header.tsx
-│   │   ├── Sidebar.tsx
-│   │   ├── MobileMenu.tsx
-│   │   └── Onboarding.tsx
+│   │   ├── ui/             # Reusable UI components
+│   │   ├── Dashboard.tsx   # Analytics dashboard
+│   │   ├── NewsAggregator.tsx # News fetching & display
+│   │   ├── PDFProcessor.tsx   # PDF upload & analysis
+│   │   ├── UserAuth.tsx       # Authentication system
+│   │   └── UserDropdown.tsx   # User menu & settings
 │   ├── utils/              # Utility functions
-│   │   ├── rssApi.ts       # RSS feed fetching & parsing
+│   │   ├── rssApi.ts       # RSS feed processing
 │   │   ├── groqApi.ts      # AI analysis integration
-│   │   ├── pdfParser.ts    # PDF processing
-│   │   ├── pdfExporter.ts  # Export functionality
-│   │   └── aiAnalyzer.ts   # AI analysis logic
-│   ├── styles/
-│   │   └── globals.css     # Global styles
-│   ├── App.tsx             # Main app component
-│   ├── main.tsx            # Entry point
-│   └── vite-env.d.ts       # TypeScript declarations
-├── .env                    # Environment variables (create from .env.example)
-├── .env.example            # Environment template
+│   │   ├── database.ts     # IndexedDB operations
+│   │   ├── userManager.ts  # User management
+│   │   └── pdfParser.ts    # PDF text extraction
+│   ├── App.tsx             # Main application
+│   └── main.tsx            # Entry point
 ├── package.json            # Dependencies
 ├── vite.config.ts          # Vite configuration
-└── README.md               # You are here!
+└── README.md               # Documentation
 ```
 
 ---
 
 ## How It Works
 
-### RSS News Fetching Flow
-```
-User selects topics & date range
-         ↓
-Fetch from 8 RSS feeds in parallel
-         ↓
-Try CORS Proxy 1 (corsproxy.io)
-         ↓ (if fails)
-Try CORS Proxy 2 (allorigins.win)
-         ↓ (if fails)
-Try CORS Proxy 3 (cors-anywhere)
-         ↓
-Parse XML & extract articles
-         ↓
-Filter by language (EN/HI detection)
-         ↓
-Detect topics from content
-         ↓
-Filter by date range
-         ↓
-Return sorted articles (newest first)
+### News Processing Pipeline
+```mermaid
+graph LR
+    A[RSS Feeds] --> B[CORS Proxy]
+    B --> C[XML Parser]
+    C --> D[Content Filter]
+    D --> E[AI Analysis]
+    E --> F[User Dashboard]
 ```
 
 ### AI Analysis Flow
-```
-Article fetched
-         ↓
-Send to Groq API (Key 1)
-         ↓ (if rate limited)
-Rotate to Key 2
-         ↓ (if rate limited)
-Rotate to Key 3
-         ↓
-Generate summary + key takeaways
+```mermaid
+graph TD
+    A[Article Content] --> B{Groq API Key 1}
+    B -->|Rate Limited| C{Groq API Key 2}
+    C -->|Rate Limited| D{Groq API Key 3}
+    B --> E[AI Summary]
+    C --> E
+    D --> E
+    E --> F[Key Takeaways]
+    E --> G[Exam Insights]
 ```
 
 ---
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|-----------|
-| **Frontend** | React 18.3.1, TypeScript |
-| **Build Tool** | Vite 6.3.5 |
-| **Styling** | Tailwind CSS v3.4.0 |
-| **UI Components** | Radix UI, Lucide Icons |
-| **PDF Processing** | PDF.js 4.9.155 |
-| **AI Analysis** | Groq API (Llama models) |
-| **News Sources** | RSS Feeds (8+ Indian sources) |
-| **State Management** | React Hooks |
-| **Notifications** | Sonner |
+| Category | Technology | Version |
+|----------|-----------|---------|
+| **Frontend** | React + TypeScript | 18.3.1 + 5.0 |
+| **Build Tool** | Vite | 6.3.5 |
+| **Styling** | Tailwind CSS | 3.4.0 |
+| **UI Components** | Radix UI + Lucide Icons | Latest |
+| **Database** | IndexedDB (Dexie) | 4.0+ |
+| **PDF Processing** | PDF.js | 4.9.155 |
+| **AI Analysis** | Groq API (Llama) | Latest |
+| **State Management** | React Hooks | Built-in |
+| **Notifications** | Sonner | Latest |
 
 ---
 
-## News Sources & Reliability
+## Key Features Deep Dive
 
-### RSS Feed Sources
-| Source | Type | Update Frequency | Reliability |
-|--------|------|------------------|-------------|
-| Times of India | General | Real-time | Excellent |
-| The Hindu | General | Real-time | Excellent |
-| Indian Express | General | Real-time | Excellent |
-| Hindustan Times | General | Real-time | Very Good |
-| NDTV | General | Real-time | Very Good |
-| LiveMint | Business | Real-time | Very Good |
-| The Wire | Analysis | Real-time | Very Good |
-| India Today | General | Real-time | Very Good |
+### Authentication System
+- **One Device, One Account** policy
+- **Password-protected** accounts
+- **Secure user isolation** with separate data storage
+- **Account deletion** with complete data cleanup
 
-### CORS Proxy System
-The app uses a 3-tier fallback system:
-1. **corsproxy.io** (Primary)
-2. **allorigins.win** (Secondary)
-3. **cors-anywhere.herokuapp.com** (Backup)
+### News Aggregation
+- **Real-time RSS feeds** from 8+ trusted sources
+- **3-tier CORS proxy** fallback system
+- **Smart duplicate detection** using content similarity
+- **Progressive loading** with live updates
+- **Date range filtering** (24h, week, month, custom)
 
-**Benefits:**
-- No API keys needed for news fetching
-- No rate limits or daily quotas
-- Real-time updates from trusted sources
-- Automatic fallback if one proxy fails
-- 100% free news aggregation
+### AI Analysis
+- **Groq API integration** with 3-key rotation
+- **Lightweight summaries** with key takeaways
+- **Exam-relevant insights** extraction
+- **Multi-language support** for analysis
+- **Rate limit handling** with automatic failover
 
-**Console Logging:**
-The app shows RSS feed status in real-time:
-- RSS toi: Fetched 20 items via https://corsproxy.io
-- RSS hindu failed with proxy 1, trying proxy 2...
+### Data Management
+- **IndexedDB storage** with user isolation
+- **Bookmark system** for articles and PDFs
+- **Search history** tracking
+- **Export functionality** (JSON, PDF)
+- **Database statistics** and cleanup tools
 
 ---
 
-## Features in Detail
+## Language Support
 
-### Dashboard
-- Recent articles overview
-- Bookmarked articles
-- Processed PDFs
-- Quick stats
-
-### News Aggregator
-- RSS feed aggregation from 8+ sources
-- Automatic CORS proxy fallback
-- Search & filter by topic
-- Date range selection (24h/week/month/custom)
-- Language detection & filtering
-- Progressive AI summarization
-- Export to JSON/PDF
-
-### PDF Processor
-- Drag & drop upload
-- Text extraction
-- AI-powered analysis
-- Manage processed documents
-
-### Analysis Viewer
-- Detailed article/PDF analysis
-- Key takeaways
-- Exam relevance
-- Potential questions
-- Related topics
+| Language | Code | Native Name |
+|----------|------|-------------|
+| English | `en` | English |
+| Hindi | `hi` | हिंदी |
+| Tamil | `ta` | தமிழ் |
+| Bengali | `bn` | বাংলা |
+| Telugu | `te` | తెలుగు |
+| Marathi | `mr` | मराठी |
+| Gujarati | `gu` | ગુજરાતી |
+| Kannada | `kn` | ಕನ್ನಡ |
+| Malayalam | `ml` | മലയാളം |
+| Punjabi | `pa` | ਪੰਜਾਬੀ |
+| Urdu | `ur` | اردو |
 
 ---
 
-## Known Issues & Fixes
+## Topic Categories
 
-### Fixed Issues
-1. **RSS Integration**: Migrated from paid news APIs to free RSS feeds
-2. **CORS Proxy System**: Implemented 3-tier fallback for reliable access
-3. **Date Range Bug**: Fixed incorrect 24h/week/month calculations
-4. **PDF.js Version**: Corrected worker version mismatch (4.9.155)
-5. **Duplicate Detection**: Changed from title-based to unique ID-based
-6. **Tailwind CSS**: Reverted to stable v3.4.0 from problematic v4
-7. **Language Detection**: Added English/Hindi content filtering
-8. **Server Port**: Updated to port 3000 with auto-open in browser
-9. **News Card UI**: Enhanced with better visual hierarchy
-
-### Ongoing Improvements
-- Enhanced error handling
-- Better rate limit management
-- Improved caching strategy
+**Polity** • **Economy** • **Environment** • **International Relations** • **Science & Tech** • **Society** • **History** • **Geography**
 
 ---
 
-## Scripts
+## Performance Features
+
+- **Vite** for lightning-fast development
+- **Progressive loading** with real-time updates
+- **Efficient caching** with IndexedDB
+- **CSS-in-JS** with Tailwind for optimal performance
+- **Mobile-first** responsive design
+- **Debounced search** for smooth user experience
+
+---
+
+## Privacy & Security
+
+- **Local-first** - All data stored on your device
+- **Password protection** for account access
+- **User isolation** - Complete data separation
+- **Right to deletion** - Remove all data anytime
+- **No tracking** - Your privacy is protected
+- **Secure API calls** with key rotation
+
+---
+
+## Themes
+
+### Light Mode
+Clean, modern interface perfect for daytime reading
+
+### Dark Mode  
+Easy on the eyes for night-time news consumption
+
+### Newspaper Mode
+Classic newspaper aesthetic for traditional readers
+
+---
+
+## Mobile Experience
+
+- **Touch-optimized** interface
+- **Pull-to-refresh** functionality
+- **Mobile dashboard** with swipe gestures
+- **Collapsible menu** for easy navigation
+- **Fast loading** on mobile networks
+
+---
+
+## Development
+
+### Available Scripts
 
 ```bash
 # Development
@@ -303,51 +283,112 @@ npm run dev          # Start dev server (http://localhost:3000)
 # Production
 npm run build        # Build for production
 npm run preview      # Preview production build
+
+# Linting & Formatting
+npm run lint         # Run ESLint
+npm run format       # Format with Prettier
 ```
+
+### Development Guidelines
+
+1. **Code Style** - Follow TypeScript best practices
+2. **Components** - Use functional components with hooks
+3. **Styling** - Tailwind CSS utility classes
+4. **State** - React hooks for local state, IndexedDB for persistence
+5. **API** - Proper error handling and loading states
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+We welcome contributions! Here's how you can help:
 
+### Bug Reports
+Found a bug? [Open an issue](https://github.com/your-repo/issues) with:
+- Clear description
+- Steps to reproduce
+- Expected vs actual behavior
+- Screenshots if applicable
+
+### Feature Requests
+Have an idea? [Start a discussion](https://github.com/your-repo/discussions) about:
+- Feature description
+- Use case and benefits
+- Implementation suggestions
+
+### Pull Requests
+Ready to contribute code?
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ---
 
-## License
+## Roadmap
 
-This project is licensed under the MIT License.
+### Version 2.1 (Coming Soon)
+- Real-time notifications for breaking news
+- Advanced analytics with reading patterns
+- Custom themes and personalization
+- Social sharing integration
+
+### Version 2.2 (Future)
+- Multi-device sync with cloud storage
+- Voice narration for articles
+- Mobile app (React Native)
+- Advanced AI with GPT-4 integration
 
 ---
 
 ## Acknowledgments
 
-- **Figma Design**: Original design from [Figma Community](https://www.figma.com/design/gyTvphSj7O4ZRiB8SnwwDb/AI-News-Summarizer-App)
-- **APIs**: WorldNewsAPI, GNews, NewsData.io, Groq
-- **UI Components**: Radix UI, Lucide Icons
-- **PDF Processing**: Mozilla PDF.js
+### Design Inspiration
+- Original Figma design from [Figma Community](https://www.figma.com/design/gyTvphSj7O4ZRiB8SnwwDb/AI-News-Summarizer-App)
+
+### Technologies
+- **Groq** for lightning-fast AI inference
+- **Radix UI** for accessible components
+- **Lucide** for beautiful icons
+- **Mozilla PDF.js** for PDF processing
+- **Dexie** for IndexedDB management
+
+### News Sources
+Special thanks to all the news organizations providing RSS feeds:
+- Times of India, The Hindu, Indian Express, NDTV, and others
+
+---
+
+## License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## Support
 
-Having issues? Check these resources:
+### Having Issues?
 
-- **API Setup Issues**: Only Groq API keys needed in `.env` file
-- **Build Errors**: Run `npm install` again
-- **News Not Loading**: Check internet connection (RSS feeds are free, no quotas!)
-- **CORS Issues**: App automatically tries 3 different proxies
-- **PDF Processing**: Ensure PDF.js worker version matches (4.9.155)
+| Issue Type | Solution |
+|------------|----------|
+| **Build Errors** | Run `npm install` and check Node.js version |
+| **API Issues** | Verify Groq API keys in `.env` file |
+| **News Not Loading** | Check internet connection (RSS feeds are free!) |
+| **CORS Issues** | App automatically tries 3 different proxies |
+| **PDF Processing** | Ensure PDF.js worker version matches (4.9.155) |
+
+### Get Help
+- **Email**: support@ainewsanalyzer.com
+- **Discord**: [Join our community](https://discord.gg/ainews)
+- **Twitter**: [@AINewsAnalyzer](https://twitter.com/ainewsanalyzer)
 
 ---
 
----
+<div align="center">
 
-Made for staying informed
+**Made with ❤️ for staying informed in the digital age**
 
-[Star this repo](https://github.com/your-repo) • [Report Bug](https://github.com/your-repo/issues) • [Request Feature](https://github.com/your-repo/issues)
+[⬆️ Back to Top](#ai-news-summarizer-app-20)
+
+</div>
