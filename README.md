@@ -131,6 +131,121 @@ AI News Summarizer App 2.0/
 
 ## How It Works
 
+### System Architecture
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        A[React App]
+        B[TypeScript Components]
+        C[Tailwind CSS]
+    end
+    
+    subgraph "State Management"
+        D[React Hooks]
+        E[Local State]
+        F[Context API]
+    end
+    
+    subgraph "Data Layer"
+        G[IndexedDB]
+        H[User Manager]
+        I[Database Service]
+    end
+    
+    subgraph "External APIs"
+        J[Groq AI API]
+        K[RSS Feeds]
+        L[CORS Proxies]
+    end
+    
+    A --> D
+    D --> G
+    A --> J
+    A --> K
+    K --> L
+    G --> H
+    G --> I
+```
+
+### Data Flow Diagram
+```mermaid
+flowchart TD
+    A[User Login] --> B{Authentication}
+    B -->|Success| C[Load User Data]
+    B -->|Fail| D[Show Login Form]
+    
+    C --> E[Dashboard]
+    E --> F{User Action}
+    
+    F -->|Fetch News| G[RSS API Call]
+    F -->|Upload PDF| H[PDF Parser]
+    F -->|Search| I[Database Query]
+    F -->|Bookmark| J[Update Database]
+    
+    G --> K[Parse XML]
+    K --> L[Filter Content]
+    L --> M[AI Analysis]
+    M --> N[Store Articles]
+    
+    H --> O[Extract Text]
+    O --> M
+    
+    I --> P[Return Results]
+    J --> Q[Update UI]
+    N --> Q
+    P --> Q
+    
+    Q --> E
+```
+
+### Component Block Diagram
+```mermaid
+block-beta
+    columns 3
+    
+    block:auth["Authentication Layer"]
+        UserAuth
+        UserManager
+        UserDropdown
+    end
+    
+    block:ui["UI Components"]
+        Header
+        Sidebar
+        Dashboard
+    end
+    
+    block:core["Core Features"]
+        NewsAggregator
+        PDFProcessor
+        AnalysisViewer
+    end
+    
+    block:data["Data Management"]
+        DatabaseService
+        IndexedDB
+        LocalStorage
+    end
+    
+    block:api["External Services"]
+        GroqAPI
+        RSSFeeds
+        CORSProxy
+    end
+    
+    block:utils["Utilities"]
+        PDFParser
+        Translator
+        Exporter
+    end
+    
+    auth --> ui
+    ui --> core
+    core --> data
+    core --> api
+    core --> utils
+```
+
 ### News Processing Pipeline
 ```mermaid
 graph LR
@@ -152,6 +267,68 @@ graph TD
     D --> E
     E --> F[Key Takeaways]
     E --> G[Exam Insights]
+```
+
+### Database Schema
+```mermaid
+erDiagram
+    USERS {
+        string id PK
+        string name
+        string email
+        string password
+        date createdAt
+        date lastLogin
+    }
+    
+    ARTICLES {
+        string id PK
+        string title
+        string content
+        string source
+        date date
+        string topics
+        string language
+        boolean bookmarked
+        string userId FK
+        date createdAt
+        date updatedAt
+    }
+    
+    PDFS {
+        string id PK
+        string name
+        string content
+        date uploadDate
+        number pageCount
+        boolean bookmarked
+        string userId FK
+        date createdAt
+        date updatedAt
+    }
+    
+    PREFERENCES {
+        number id PK
+        string language
+        string selectedTopics
+        string themeMode
+        string analysisDepth
+        string userId FK
+        date lastSync
+    }
+    
+    SEARCH_HISTORY {
+        number id PK
+        string query
+        date timestamp
+        number resultsCount
+        string userId FK
+    }
+    
+    USERS ||--o{ ARTICLES : owns
+    USERS ||--o{ PDFS : owns
+    USERS ||--|| PREFERENCES : has
+    USERS ||--o{ SEARCH_HISTORY : creates
 ```
 
 ---
