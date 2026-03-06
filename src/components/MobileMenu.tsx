@@ -102,7 +102,7 @@ export function MobileMenu({
       {/* Hamburger Button - Only visible on mobile */}
       <button
         onClick={() => setIsOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-40 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        className="lg:hidden fixed top-4 right-4 z-40 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         aria-label={t.menu}
       >
         <Menu className="h-6 w-6 text-gray-900 dark:text-white" />

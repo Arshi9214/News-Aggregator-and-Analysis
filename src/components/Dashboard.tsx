@@ -1,8 +1,9 @@
 import { BookMarked, FileText, TrendingUp, Calendar } from 'lucide-react';
 import { NewsArticle, ProcessedPDF, Language, ThemeMode } from '../App';
 import { NewsCard } from './NewsCard';
-import { DatabaseSettings } from './DatabaseSettings';
 import { useState, useEffect } from 'react';
+import { DatabaseViewer } from './DatabaseViewer';
+import { UserManager } from '../utils/userManager';
 
 interface DashboardProps {
   articles: NewsArticle[];
@@ -174,6 +175,10 @@ export function Dashboard({
   const bookmarkedArticles = articles.filter(a => a.bookmarked);
   const bookmarkedPDFs = processedPDFs.filter(p => p.bookmarked);
   const recentItems = [...articles.slice(0, 3), ...processedPDFs.slice(0, 2)].slice(0, 5);
+  
+  // Check if current user is admin
+  const currentUser = UserManager.getCurrentUser();
+  const isAdmin = currentUser?.name.toLowerCase() === 'admin';
 
   // Trigger refresh when data changes
   useEffect(() => {
@@ -185,79 +190,79 @@ export function Dashboard({
   }, [articles.length, processedPDFs.length, bookmarkedArticles.length, bookmarkedPDFs.length]);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t.title}</h2>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="px-1">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">{t.title}</h2>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`rounded-lg p-6 border ${
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className={`rounded-lg p-4 sm:p-6 border ${
           themeMode === 'newspaper'
             ? 'bg-[#f9f3e8] border-[#8b7355]'
             : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
         }`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className={`text-sm ${
+              <p className={`text-xs sm:text-sm ${
                 themeMode === 'newspaper' ? 'text-[#5a4a3a]' : 'text-gray-600 dark:text-gray-400'
               }`}>{t.totalArticles}</p>
-              <p className={`text-3xl font-bold mt-1 ${
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${
                 themeMode === 'newspaper' ? 'text-[#2c1810]' : 'text-gray-900 dark:text-white'
               }`}>{articles.length}</p>
             </div>
-            <div className={`p-3 rounded-lg ${
+            <div className={`p-2 sm:p-3 rounded-lg ${
               themeMode === 'newspaper' ? 'bg-[#c9b896]' : 'bg-blue-100 dark:bg-blue-900/20'
             }`}>
-              <TrendingUp className={`h-6 w-6 ${
+              <TrendingUp className={`h-5 w-5 sm:h-6 sm:w-6 ${
                 themeMode === 'newspaper' ? 'text-[#3d2817]' : 'text-blue-600 dark:text-blue-400'
               }`} />
             </div>
           </div>
         </div>
 
-        <div className={`rounded-lg p-6 border ${
+        <div className={`rounded-lg p-4 sm:p-6 border ${
           themeMode === 'newspaper'
             ? 'bg-[#f9f3e8] border-[#8b7355]'
             : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
         }`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className={`text-sm ${
+              <p className={`text-xs sm:text-sm ${
                 themeMode === 'newspaper' ? 'text-[#5a4a3a]' : 'text-gray-600 dark:text-gray-400'
               }`}>{t.totalPDFs}</p>
-              <p className={`text-3xl font-bold mt-1 ${
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${
                 themeMode === 'newspaper' ? 'text-[#2c1810]' : 'text-gray-900 dark:text-white'
               }`}>{processedPDFs.length}</p>
             </div>
-            <div className={`p-3 rounded-lg ${
+            <div className={`p-2 sm:p-3 rounded-lg ${
               themeMode === 'newspaper' ? 'bg-[#c9b896]' : 'bg-purple-100 dark:bg-purple-900/20'
             }`}>
-              <FileText className={`h-6 w-6 ${
+              <FileText className={`h-5 w-5 sm:h-6 sm:w-6 ${
                 themeMode === 'newspaper' ? 'text-[#3d2817]' : 'text-purple-600 dark:text-purple-400'
               }`} />
             </div>
           </div>
         </div>
 
-        <div className={`rounded-lg p-6 border ${
+        <div className={`rounded-lg p-4 sm:p-6 border ${
           themeMode === 'newspaper'
             ? 'bg-[#f9f3e8] border-[#8b7355]'
             : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
         }`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className={`text-sm ${
+              <p className={`text-xs sm:text-sm ${
                 themeMode === 'newspaper' ? 'text-[#5a4a3a]' : 'text-gray-600 dark:text-gray-400'
               }`}>{t.bookmarks}</p>
-              <p className={`text-3xl font-bold mt-1 ${
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${
                 themeMode === 'newspaper' ? 'text-[#2c1810]' : 'text-gray-900 dark:text-white'
               }`}>{bookmarkedArticles.length + bookmarkedPDFs.length}</p>
             </div>
-            <div className={`p-3 rounded-lg ${
+            <div className={`p-2 sm:p-3 rounded-lg ${
               themeMode === 'newspaper' ? 'bg-[#c9b896]' : 'bg-green-100 dark:bg-green-900/20'
             }`}>
-              <BookMarked className={`h-6 w-6 ${
+              <BookMarked className={`h-5 w-5 sm:h-6 sm:w-6 ${
                 themeMode === 'newspaper' ? 'text-[#3d2817]' : 'text-green-600 dark:text-green-400'
               }`} />
             </div>
@@ -266,12 +271,12 @@ export function Dashboard({
       </div>
 
       {/* Bookmarked Articles */}
-      <div className={`rounded-lg p-6 border ${
+      <div className={`rounded-lg p-4 sm:p-6 border ${
         themeMode === 'newspaper'
           ? 'bg-[#f9f3e8] border-[#8b7355]'
           : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
       }`}>
-        <h3 className={`text-lg font-semibold mb-4 ${
+        <h3 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${
           themeMode === 'newspaper' ? 'text-[#2c1810]' : 'text-gray-900 dark:text-white'
         }`}>{t.bookmarked}</h3>
         {bookmarkedArticles.length === 0 && bookmarkedPDFs.length === 0 ? (
@@ -326,12 +331,12 @@ export function Dashboard({
       </div>
 
       {/* Recent Activity */}
-      <div className={`rounded-lg p-6 border ${
+      <div className={`rounded-lg p-4 sm:p-6 border ${
         themeMode === 'newspaper'
           ? 'bg-[#f9f3e8] border-[#8b7355]'
           : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
       }`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t.recent}</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">{t.recent}</h3>
         {recentItems.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-center py-8">{t.noRecent}</p>
         ) : (
@@ -377,12 +382,14 @@ export function Dashboard({
         )}
       </div>
 
-      {/* Database Settings */}
-      <DatabaseSettings 
-        language={language as 'en' | 'hi'} 
-        themeMode={themeMode} 
-        key={refreshKey}
-      />
+
+      {/* Admin-only Database Viewer */}
+      {isAdmin && (
+        <DatabaseViewer 
+          language={language}
+          themeMode={themeMode}
+        />
+      )}
     </div>
   );
 }

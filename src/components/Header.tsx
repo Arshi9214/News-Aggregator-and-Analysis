@@ -84,17 +84,17 @@ export function Header({ language, setLanguage, darkMode, setDarkMode, themeMode
         ? 'bg-[#f9f3e8] border-[#8b7355]'
         : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
     }`}>
-      <div className="px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className={`text-2xl font-bold ${
+      <div className="px-3 sm:px-6 py-3 sm:py-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="min-w-0 flex-shrink">
+            <h1 className={`text-lg sm:text-2xl font-bold truncate ${
               themeMode === 'newspaper'
                 ? 'text-[#2c1810] font-serif'
                 : 'text-gray-900 dark:text-white'
             }`}>
               {t.title}
             </h1>
-            <p className={`text-sm mt-1 ${
+            <p className={`text-xs sm:text-sm mt-1 line-clamp-1 ${
               themeMode === 'newspaper'
                 ? 'text-[#5a4a3a]'
                 : 'text-gray-600 dark:text-gray-400'
@@ -103,9 +103,9 @@ export function Header({ language, setLanguage, darkMode, setDarkMode, themeMode
             </p>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             {/* Language Selector */}
-            <div className="relative">
+            <div className="relative hidden sm:block">
               <Globe className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${
                 themeMode === 'newspaper' ? 'text-[#5a4a3a]' : 'text-gray-500 dark:text-gray-400'
               }`} />
@@ -128,7 +128,7 @@ export function Header({ language, setLanguage, darkMode, setDarkMode, themeMode
             
             {/* User Info & Dropdown */}
             {currentUser && (
-              <div className="relative">
+              <div className="relative hidden sm:block">
                 <UserDropdown 
                   currentUser={currentUser}
                   onLogout={onLogout!}
@@ -139,10 +139,10 @@ export function Header({ language, setLanguage, darkMode, setDarkMode, themeMode
             )}
             
             {/* Theme Toggle Buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2">
               <button
                 onClick={() => setThemeMode?.('light')}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                   themeMode === 'light'
                     ? 'bg-blue-100 text-blue-600'
                     : themeMode === 'newspaper'
@@ -151,12 +151,12 @@ export function Header({ language, setLanguage, darkMode, setDarkMode, themeMode
                 }`}
                 aria-label="Light mode"
               >
-                <Sun className="h-5 w-5" />
+                <Sun className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
               
               <button
                 onClick={() => setThemeMode?.('dark')}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                   themeMode === 'dark'
                     ? 'bg-gray-700 text-yellow-500'
                     : themeMode === 'newspaper'
@@ -165,19 +165,19 @@ export function Header({ language, setLanguage, darkMode, setDarkMode, themeMode
                 }`}
                 aria-label="Dark mode"
               >
-                <Moon className="h-5 w-5" />
+                <Moon className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
               
               <button
                 onClick={() => setThemeMode?.('newspaper')}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                   themeMode === 'newspaper'
                     ? 'bg-[#6b5744] text-[#f9f3e8]'
                     : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
                 }`}
                 aria-label="Newspaper mode"
               >
-                <Newspaper className="h-5 w-5" />
+                <Newspaper className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
           </div>

@@ -15,7 +15,6 @@ import { UserManager, User } from './utils/userManager';
 
 export type Language = 'en' | 'hi' | 'ta' | 'bn' | 'te' | 'mr' | 'gu' | 'kn' | 'ml' | 'pa' | 'ur';
 export type Topic = 'economy' | 'polity' | 'environment' | 'international' | 'science' | 'society' | 'history' | 'geography' | 'all';
-export type AnalysisDepth = 'basic' | 'advanced';
 
 export interface NewsArticle {
   id: string;
@@ -62,7 +61,6 @@ function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
   const [language, setLanguage] = useState<Language>('en');
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>(['all']);
-  const [analysisDepth, setAnalysisDepth] = useState<AnalysisDepth>('basic');
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [processedPDFs, setProcessedPDFs] = useState<ProcessedPDF[]>([]);
   const [selectedItem, setSelectedItem] = useState<NewsArticle | ProcessedPDF | null>(null);
@@ -77,8 +75,30 @@ function App() {
   }, []);
 
   // Database hooks
-  const { saveArticles, toggleBookmark: dbToggleBookmark } = useArticles();
+  const { articles: dbArticles, saveArticles, toggleBookmark: dbToggleBookmark } = useArticles();
   const { preferences, savePreferences } = usePreferences();
+
+  // Load articles from database
+  useEffect(() => {
+    if (dbArticles.length > 0) {
+      setArticles(dbArticles);
+    }
+  }, [dbArticles]);
+
+  // Load PDFs from database
+  useEffect(() => {
+    const loadPDFs = async () => {
+      try {
+        const pdfs = await DatabaseService.getPDFs();
+        setProcessedPDFs(pdfs);
+      } catch (error) {
+        console.error('Failed to load PDFs:', error);
+      }
+    };
+    if (currentUser) {
+      loadPDFs();
+    }
+  }, [currentUser]);
 
   // Load preferences on startup
   useEffect(() => {
@@ -86,21 +106,20 @@ function App() {
       setLanguage(preferences.language);
       setSelectedTopics(preferences.selectedTopics);
       setThemeMode(preferences.themeMode);
-      setAnalysisDepth(preferences.analysisDepth);
     }
   }, [preferences]);
 
   // Save preferences when they change
   useEffect(() => {
-    if (preferences) { // Only save if preferences have been loaded
+    if (preferences) {
       savePreferences({
         language,
         selectedTopics,
         themeMode,
-        analysisDepth
+        analysisDepth: 'basic'
       });
     }
-  }, [language, selectedTopics, themeMode, analysisDepth, preferences, savePreferences]);
+  }, [language, selectedTopics, themeMode, preferences, savePreferences]);
 
   const toggleBookmark = async (articleId: string) => {
     // Update local state immediately for better UX
@@ -140,6 +159,9 @@ function App() {
     
     try {
       await DatabaseService.togglePDFBookmark(pdfId);
+      // Reload PDFs to get updated data
+      const pdfs = await DatabaseService.getPDFs();
+      setProcessedPDFs(pdfs);
     } catch (error) {
       console.error('Failed to save PDF bookmark:', error);
       setProcessedPDFs(prev =>
@@ -184,6 +206,9 @@ function App() {
     try {
       await DatabaseService.savePDF(pdf);
       console.log('💾 PDF saved to database');
+      // Reload PDFs to ensure sync
+      const pdfs = await DatabaseService.getPDFs();
+      setProcessedPDFs(pdfs);
     } catch (error) {
       console.error('Failed to save PDF to database:', error);
       toast.error('Failed to save PDF to database');
@@ -289,13 +314,11 @@ function App() {
             setViewMode={setViewMode}
             selectedTopics={selectedTopics}
             setSelectedTopics={setSelectedTopics}
-            analysisDepth={analysisDepth}
-            setAnalysisDepth={setAnalysisDepth}
             language={language}
             themeMode={themeMode}
           />
           
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-4 sm:p-6 w-full min-w-0">
             {viewMode === 'dashboard' && (
               <Dashboard
                 articles={articles}
@@ -312,7 +335,6 @@ function App() {
               <NewsAggregator
                 language={language}
                 selectedTopics={selectedTopics}
-                analysisDepth={analysisDepth}
                 onArticlesLoaded={addArticles}
                 articles={articles}
                 onToggleBookmark={toggleBookmark}
@@ -324,7 +346,6 @@ function App() {
             {viewMode === 'pdf' && (
               <PDFProcessor
                 language={language}
-                analysisDepth={analysisDepth}
                 onPDFProcessed={addProcessedPDF}
                 processedPDFs={processedPDFs}
                 onViewAnalysis={viewAnalysis}

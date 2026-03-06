@@ -1,13 +1,11 @@
 import { LayoutDashboard, Newspaper, FileText, BarChart3, Filter } from 'lucide-react';
-import { ViewMode, Topic, AnalysisDepth, Language, ThemeMode } from '../App';
+import { ViewMode, Topic, Language, ThemeMode } from '../App';
 
 interface SidebarProps {
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
   selectedTopics: Topic[];
   setSelectedTopics: (topics: Topic[]) => void;
-  analysisDepth: AnalysisDepth;
-  setAnalysisDepth: (depth: AnalysisDepth) => void;
   language: Language;
   themeMode?: ThemeMode;
 }
@@ -142,8 +140,6 @@ export function Sidebar({
   setViewMode,
   selectedTopics,
   setSelectedTopics,
-  analysisDepth,
-  setAnalysisDepth,
   language,
   themeMode
 }: SidebarProps) {
