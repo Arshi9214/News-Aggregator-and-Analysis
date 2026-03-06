@@ -1,6 +1,7 @@
 import { NewsArticle, Topic, Language } from '../App';
 import { generateLightweightSummary } from './groqApi';
 import { fetchRSSNews, generateRSSSummary } from './rssApi';
+import { fetchArchiveNews } from './archiveApi';
 
 // Topic keywords for better categorization
 const TOPIC_KEYWORDS: Record<Topic, string[]> = {
@@ -25,10 +26,27 @@ export async function fetchNews(
   language: Language,
   onProgressUpdate?: (articles: NewsArticle[]) => void
 ): Promise<NewsArticle[]> {
-  console.log('🚀 Starting RSS news fetch...', { topics, dateRange, language });
+  console.log('🚀 Starting news fetch...', { topics, dateRange, language });
+  
+  const daysDiff = (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
   
   try {
-    // Use RSS feeds as primary source
+    // For custom/month ranges (>7 days), use archive scraping
+    if (daysDiff > 7) {
+      console.log('📚 Using archive scraping for custom/month range');
+      const articles = await fetchArchiveNews(
+        topics,
+        dateRange,
+        language,
+        (status, source) => console.log(`${status} - ${source}`),
+        onProgressUpdate
+      );
+      console.log(`✅ Archive fetch completed: ${articles.length} articles`);
+      return articles;
+    }
+    
+    // For recent ranges (≤7 days), use RSS feeds
+    console.log('📡 Using RSS feeds for recent news');
     const articles = await fetchRSSNews(
       topics,
       language,
@@ -39,7 +57,7 @@ export async function fetchNews(
     console.log(`✅ RSS fetch completed: ${articles.length} articles`);
     return articles;
   } catch (error) {
-    console.error('❌ RSS fetch failed:', error);
+    console.error('❌ News fetch failed:', error);
     return [];
   }
 }

@@ -161,13 +161,21 @@ export async function fetchRSSNews(
     return b.date.getTime() - a.date.getTime();
   });
   
+  // RSS feeds only have recent articles (last 24h-7 days)
+  // For custom/month ranges, skip date filtering
+  if (dateRange) {
+    const daysDiff = (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysDiff > 7) {
+      console.log('⚠️ Custom range >7 days: returning all RSS articles (RSS only has recent news)');
+      return sortedArticles;
+    }
+  }
+  
   return sortedArticles.filter(article => {
     if (!dateRange) return true;
     const articleTime = article.date.getTime();
-    const inRange = articleTime >= dateRange.from.getTime() && articleTime <= dateRange.to.getTime();
-    return inRange;
-  });
-}
+    return articleTime >= dateRange.from.getTime() && articleTime <= dateRange.to.getTime();
+  });}
 
 /**
  * Remove duplicate articles based on title similarity

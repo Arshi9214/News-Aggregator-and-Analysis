@@ -19,20 +19,13 @@ export function UserAuth({ language, onUserLogin, themeMode }: UserAuthProps) {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
 
   useEffect(() => {
-    const checkExistingAccount = async () => {
-      const users = await UserManager.getAllUsers();
-      setHasExistingAccount(users.length > 0);
-      if (users.length === 0) {
-        setMode('signup');
-      }
-    };
-    checkExistingAccount();
+    setMode('login');
   }, []);
 
   const t = {
     en: {
       title: 'Welcome to AI News Analyzer',
-      subtitle: hasExistingAccount ? 'Sign in to your account' : 'Create your account - One device, one account',
+      subtitle: hasExistingAccount ? 'Sign in to your account' : 'Create your account',
       login: 'Login',
       signup: 'Create Account',
       selectUser: 'Select User',
@@ -51,7 +44,7 @@ export function UserAuth({ language, onUserLogin, themeMode }: UserAuthProps) {
     },
     hi: {
       title: 'AI न्यूज़ एनालाइज़र में आपका स्वागत है',
-      subtitle: hasExistingAccount ? 'अपने खाते में साइन इन करें' : 'अपना खाता बनाएं - एक डिवाइस, एक खाता',
+      subtitle: hasExistingAccount ? 'अपने खाते में साइन इन करें' : 'अपना खाता बनाएं',
       login: 'लॉगिन',
       signup: 'खाता बनाएं',
       selectUser: 'उपयोगकर्ता चुनें',
@@ -92,8 +85,8 @@ export function UserAuth({ language, onUserLogin, themeMode }: UserAuthProps) {
     try {
       const user = await UserManager.createUser(name.trim(), password.trim(), email.trim() || undefined);
       onUserLogin(user);
-    } catch (error) {
-      setError('Failed to create account');
+    } catch (error: any) {
+      setError(error.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -114,13 +107,9 @@ export function UserAuth({ language, onUserLogin, themeMode }: UserAuthProps) {
     
     try {
       const user = await UserManager.loginUser(name.trim(), password.trim());
-      if (user) {
-        onUserLogin(user);
-      } else {
-        setError('Invalid credentials');
-      }
-    } catch (error) {
-      setError('Failed to login');
+      onUserLogin(user);
+    } catch (error: any) {
+      setError(error.message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }
@@ -303,16 +292,29 @@ export function UserAuth({ language, onUserLogin, themeMode }: UserAuthProps) {
               </span>
             </button>
             
-            {hasExistingAccount && (
+            {mode === 'signup' && (
               <button
-                onClick={() => setMode(mode === 'signup' ? 'login' : 'signup')}
+                onClick={() => setMode('login')}
                 className={`w-full py-3 px-4 text-sm transition-all duration-300 hover:scale-105 ${
                   themeMode === 'newspaper'
                     ? 'text-[#5a4a3a] hover:text-[#3d2817]'
                     : 'text-gray-300 hover:text-white'
                 }`}
               >
-                {mode === 'signup' ? translations.switchToLogin : translations.switchToSignup}
+                {translations.switchToLogin}
+              </button>
+            )}
+            
+            {mode === 'login' && (
+              <button
+                onClick={() => setMode('signup')}
+                className={`w-full py-3 px-4 text-sm transition-all duration-300 hover:scale-105 ${
+                  themeMode === 'newspaper'
+                    ? 'text-[#5a4a3a] hover:text-[#3d2817]'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                {translations.switchToSignup}
               </button>
             )}
           </div>
