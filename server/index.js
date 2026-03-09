@@ -11,7 +11,23 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://ai-news-summarizer.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all for now
+    }
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '50mb' }));
 
 // Initialize SQLite Database
@@ -469,4 +485,5 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
   console.log(`✅ Network: http://YOUR_IP:${PORT}`);
   console.log(`✅ Database: ${path.join(__dirname, 'newsapp.db')}`);
+  console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
 });

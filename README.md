@@ -37,90 +37,45 @@ In the digital age, information overload presents a significant challenge for us
 The proposed system follows a **three-tier client-server architecture** comprising the **Presentation Layer**, **Application Layer**, and **Data Layer**. The architecture is designed to ensure **scalability**, **modularity**, and **security** while maintaining **high performance** and **cross-platform compatibility**.
 
 ```mermaid
-graph TB
-    subgraph "<b>PRESENTATION LAYER</b>"
-        UI["<b>Web Client</b><br/>React 18.3.1<br/>TypeScript 5.0<br/>Tailwind CSS 3.4.0"]
-        AUTH_UI["<b>Authentication Module</b><br/>Login/Register<br/>JWT Token Management"]
-        DASH["<b>Dashboard Module</b><br/>Statistics<br/>User Preferences"]
-        NEWS_UI["<b>News Module</b><br/>RSS Aggregation<br/>Article Display"]
-        PDF_UI["<b>PDF Module</b><br/>Upload Interface<br/>Document Viewer"]
+graph TD
+    subgraph "<b><font size=6>━━━ PRESENTATION LAYER ━━━</font></b>"
+        UI["<b>React Web Client</b><br/>React 18.3.1 • TypeScript 5.0 • Tailwind CSS"]
+        MODULES["<b>UI Modules</b><br/>Authentication • Dashboard • News Feed • PDF Processor"]
     end
     
-    subgraph "<b>APPLICATION LAYER</b>"
-        API["<b>API Gateway</b><br/>Express.js 5.2.1<br/>RESTful Endpoints<br/>CORS & Rate Limiting"]
+    subgraph "<b><font size=6>━━━ APPLICATION LAYER ━━━</font></b>"
+        API["<b>API Gateway</b><br/>Express.js 5.2.1 • RESTful API • JWT Auth"]
         
-        subgraph "<b>Core Services</b>"
-            AUTH_SVC["<b>Authentication Service</b><br/>JWT Generation<br/>Password Hashing<br/>Session Management"]
-            USER_SVC["<b>User Service</b><br/>Profile Management<br/>Preferences<br/>Statistics"]
-            ARTICLE_SVC["<b>Article Service</b><br/>CRUD Operations<br/>Bookmark Management<br/>Search & Filter"]
-            PDF_SVC["<b>PDF Service</b><br/>Upload Processing<br/>Text Extraction<br/>Storage Management"]
-        end
+        SERVICES["<b>Core Services</b><br/>User Service • Article Service • PDF Service • Auth Service"]
         
-        subgraph "<b>Integration Layer</b>"
-            RSS["<b>RSS Aggregator</b><br/>Multi-source Fetching<br/>Feed Parsing<br/>Deduplication"]
-            AI["<b>AI Analysis Engine</b><br/>Groq Llama 3.3 70B<br/>Content Summarization<br/>Key Extraction"]
-            TRANS["<b>Translation Service</b><br/>11 Languages<br/>Google Translate API<br/>Content Localization"]
-        end
+        INTEGRATION["<b>Integration Services</b><br/>RSS Aggregator • AI Engine (Groq Llama 3.3 70B) • Translation (11 Languages)"]
     end
     
-    subgraph "<b>DATA LAYER</b>"
-        DB[("<b>SQLite Database</b><br/>better-sqlite3 12.6.2<br/>ACID Compliance<br/>WAL Mode")]
-        
-        subgraph "<b>Database Schema</b>"
-            USERS["<b>Users Table</b><br/>Authentication<br/>Profile Data"]
-            ARTICLES["<b>Articles Table</b><br/>Content Storage<br/>Analysis Results"]
-            PDFS["<b>PDFs Table</b><br/>Document Storage<br/>Extracted Text"]
-            PREFS["<b>Preferences Table</b><br/>User Settings<br/>Language & Topics"]
-        end
+    subgraph "<b><font size=6>━━━ DATA LAYER ━━━</font></b>"
+        DB[("<b>SQLite Database</b><br/>better-sqlite3 • ACID • WAL Mode")]
+        SCHEMA["<b>Schema</b><br/>Users • Articles • PDFs • Preferences"]
     end
     
-    subgraph "<b>EXTERNAL SERVICES</b>"
-        RSS_FEEDS["<b>RSS News Feeds</b><br/>Times of India<br/>The Hindu<br/>Indian Express<br/>NDTV<br/>LiveMint"]
-        GROQ_API["<b>Groq Cloud API</b><br/>LLM Processing<br/>3 API Keys<br/>Rate Limiting"]
-        TRANSLATE_API["<b>Translation API</b><br/>Google Translate<br/>Multi-language Support"]
+    subgraph "<b><font size=6>━━━ EXTERNAL SERVICES ━━━</font></b>"
+        EXTERNAL["<b>Third-Party APIs</b><br/>RSS Feeds (TOI, Hindu, IE, NDTV) • Groq Cloud • Google Translate"]
     end
     
-    UI --> API
-    AUTH_UI --> API
-    DASH --> API
-    NEWS_UI --> API
-    PDF_UI --> API
+    UI --> MODULES
+    MODULES --> API
+    API --> SERVICES
+    SERVICES --> INTEGRATION
+    SERVICES --> DB
+    DB --> SCHEMA
+    INTEGRATION --> EXTERNAL
     
-    API --> AUTH_SVC
-    API --> USER_SVC
-    API --> ARTICLE_SVC
-    API --> PDF_SVC
-    
-    AUTH_SVC --> DB
-    USER_SVC --> DB
-    ARTICLE_SVC --> DB
-    PDF_SVC --> DB
-    
-    ARTICLE_SVC --> RSS
-    ARTICLE_SVC --> AI
-    PDF_SVC --> AI
-    
-    RSS --> RSS_FEEDS
-    AI --> GROQ_API
-    ARTICLE_SVC --> TRANS
-    PDF_SVC --> TRANS
-    TRANS --> TRANSLATE_API
-    
-    DB --> USERS
-    DB --> ARTICLES
-    DB --> PDFS
-    DB --> PREFS
-    
-    style UI fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
-    style API fill:#fff3e0,stroke:#f57c00,stroke-width:3px
-    style DB fill:#fce4ec,stroke:#c2185b,stroke-width:3px
-    style AUTH_SVC fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    style USER_SVC fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    style ARTICLE_SVC fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    style PDF_SVC fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    style RSS fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-    style AI fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-    style TRANS fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    style UI fill:#e3f2fd,stroke:#1976d2,stroke-width:4px,font-size:16px
+    style MODULES fill:#bbdefb,stroke:#1976d2,stroke-width:3px
+    style API fill:#fff3e0,stroke:#f57c00,stroke-width:4px,font-size:16px
+    style SERVICES fill:#ffe0b2,stroke:#f57c00,stroke-width:3px
+    style INTEGRATION fill:#ffcc80,stroke:#f57c00,stroke-width:3px
+    style DB fill:#fce4ec,stroke:#c2185b,stroke-width:4px,font-size:16px
+    style SCHEMA fill:#f8bbd0,stroke:#c2185b,stroke-width:3px
+    style EXTERNAL fill:#e0f2f1,stroke:#00897b,stroke-width:4px,font-size:16px
 ```
 
 ### B. Detailed Component Architecture
