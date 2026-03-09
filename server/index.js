@@ -14,7 +14,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://ai-news-summarizer.vercel.app',
+  'https://news-aggregator-and-analysis.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
