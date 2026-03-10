@@ -29,11 +29,12 @@ export async function fetchNews(
   console.log('🚀 Starting news fetch...', { topics, dateRange, language });
   
   const daysDiff = (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
+  const daysFromNow = (new Date().getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
   
   try {
-    // For custom/month ranges (>7 days), use archive scraping
-    if (daysDiff > 7) {
-      console.log('📚 Using archive scraping for custom/month range');
+    // For custom/month ranges (>7 days) OR specific dates older than 7 days, use archive scraping
+    if (daysDiff > 7 || daysFromNow > 7) {
+      console.log('📚 Using archive scraping for custom/month/old date range');
       const articles = await fetchArchiveNews(
         topics,
         dateRange,
@@ -45,7 +46,7 @@ export async function fetchNews(
       return articles;
     }
     
-    // For recent ranges (≤7 days), use RSS feeds
+    // For recent ranges (≤7 days from now), use RSS feeds
     console.log('📡 Using RSS feeds for recent news');
     const articles = await fetchRSSNews(
       topics,
