@@ -738,6 +738,7 @@ export function NewsAggregator({
                 />
               </div>
             ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className={`block text-xs font-medium mb-1 ${
                   themeMode === 'newspaper' ? 'text-[#3d2817]' : 'text-gray-700 dark:text-gray-300'
@@ -785,7 +786,7 @@ export function NewsAggregator({
                   ))}
                 </select>
               </div>
-            </div>
+              </div>
             )}
           </div>
         )}
