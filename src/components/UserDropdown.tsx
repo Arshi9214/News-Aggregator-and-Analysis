@@ -49,18 +49,30 @@ function UserDropdown({ currentUser, onLogout, themeMode, language }: UserDropdo
 
   const handleDeleteAccount = async () => {
     try {
-      // Clear all user data
-      await DatabaseService.clearAllData();
+      const token = localStorage.getItem('auth_token');
+      const API_URL = import.meta.env.VITE_API_URL || 
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:5000'
+          : `http://${window.location.hostname}:5000`);
       
-      // Remove user from localStorage
-      const users = await UserManager.getAllUsers();
-      const updatedUsers = users.filter(u => u.id !== currentUser.id);
-      localStorage.setItem('allUsers', JSON.stringify(updatedUsers));
+      const response = await fetch(`${API_URL}/api/account`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      // Logout
+      if (!response.ok) {
+        throw new Error('Failed to delete account');
+      }
+      
+      // Clear local data and logout
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('currentUser');
       onLogout();
     } catch (error) {
       console.error('Error deleting account:', error);
+      alert('Failed to delete account. Please try again.');
     }
   };
 

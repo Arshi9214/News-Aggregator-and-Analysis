@@ -325,6 +325,45 @@ app.get('/api/users', authenticateToken, (req, res) => {
   }
 });
 
+// Delete user (admin only)
+app.delete('/api/users/:userId', authenticateToken, (req, res) => {
+  try {
+    const currentUser = db.prepare('SELECT name FROM users WHERE id = ?').get(req.user.userId);
+    
+    if (currentUser.name.toLowerCase() !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    const userId = req.params.userId;
+    
+    // Prevent admin from deleting themselves
+    if (userId === req.user.userId) {
+      return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
+
+    // Delete user (CASCADE will delete related articles, pdfs, preferences)
+    db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete user error:', error.message);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
+// Delete own account
+app.delete('/api/account', authenticateToken, (req, res) => {
+  try {
+    // Delete user (CASCADE will delete related articles, pdfs, preferences)
+    db.prepare('DELETE FROM users WHERE id = ?').run(req.user.userId);
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete account error:', error.message);
+    res.status(500).json({ error: 'Failed to delete account' });
+  }
+});
+
 // ============ ARTICLE ROUTES ============
 
 // Save article
