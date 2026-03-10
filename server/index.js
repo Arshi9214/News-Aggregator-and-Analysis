@@ -110,6 +110,11 @@ const authenticateToken = (req, res, next) => {
 
 // ============ AUTH ROUTES ============
 
+// Health check endpoint (for cron jobs)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Register
 app.post('/api/auth/register', async (req, res) => {
   try {
