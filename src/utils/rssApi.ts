@@ -103,6 +103,32 @@ export async function fetchRSSNews(
           const pubDate = item.querySelector('pubDate')?.textContent || '';
           const guid = item.querySelector('guid')?.textContent || '';
           
+          // Extract image from multiple RSS formats
+          let imageUrl: string | undefined;
+          
+          // Method 1: media:content or media:thumbnail (common in RSS 2.0)
+          const mediaContent = item.querySelector('media\\:content, content');
+          const mediaThumbnail = item.querySelector('media\\:thumbnail, thumbnail');
+          imageUrl = mediaContent?.getAttribute('url') || mediaThumbnail?.getAttribute('url');
+          
+          // Method 2: enclosure tag (podcast/media RSS)
+          if (!imageUrl) {
+            const enclosure = item.querySelector('enclosure[type^="image"]');
+            imageUrl = enclosure?.getAttribute('url') || undefined;
+          }
+          
+          // Method 3: Extract from description HTML
+          if (!imageUrl && description) {
+            const imgMatch = description.match(/<img[^>]+src=["']([^"']+)["']/i);
+            imageUrl = imgMatch?.[1];
+          }
+          
+          // Method 4: Extract from content:encoded
+          if (!imageUrl && contentEncoded) {
+            const imgMatch = contentEncoded.match(/<img[^>]+src=["']([^"']+)["']/i);
+            imageUrl = imgMatch?.[1];
+          }
+          
           // Translate content if needed
           const { title: translatedTitle, content: translatedContent } = 
             await translateNewsContent(title, content, language);
@@ -119,7 +145,7 @@ export async function fetchRSSNews(
             topics: detectTopics(title + ' ' + content, topics),
             language,
             url: link,
-            imageUrl: undefined,
+            imageUrl,
             bookmarked: false,
             hasRealContent
           };
