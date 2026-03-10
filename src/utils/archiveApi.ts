@@ -71,6 +71,7 @@ export async function fetchArchiveNews(
     
     // Scrape from multiple news sources
     const archiveSources = [
+      { name: 'theHindu', scraper: scrapeTheHinduArchive },
       { name: 'indianExpress', scraper: scrapeIndianExpressArchive },
       { name: 'timesOfIndia', scraper: scrapeTimesOfIndiaArchive }
     ];
@@ -344,6 +345,84 @@ function generateHistoricalDates(from: Date, to: Date): Date[] {
   
   console.log(`📅 Generated ${dates.length} dates to scrape`);
   return dates;
+}
+
+/**
+ * Scrape The Hindu archive for a specific date
+ */
+async function scrapeTheHinduArchive(
+  date: Date,
+  topics: Topic[],
+  language: Language
+): Promise<NewsArticle[]> {
+  const articles: NewsArticle[] = [];
+  const archiveUrl = `https://www.thehindu.com/archive/web/${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/`;
+  
+  console.log(`🔍 Scraping The Hindu: ${archiveUrl}`);
+  
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const proxiedUrl = proxy + encodeURIComponent(archiveUrl);
+      const response = await fetch(proxiedUrl, {
+        method: 'GET',
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+        signal: AbortSignal.timeout(15000)
+      });
+      
+      if (!response.ok) continue;
+      
+      const html = await response.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      
+      const headlines = doc.querySelectorAll('h3 a, .story-card h3 a, .archive-list a, h2 a');
+      
+      for (let i = 0; i < Math.min(headlines.length, 20); i++) {
+        const link = headlines[i] as HTMLAnchorElement;
+        const title = link.textContent?.trim() || '';
+        let url = link.href;
+        
+        if (title.length < 10 || !url) continue;
+        if (url.startsWith('/')) url = 'https://www.thehindu.com' + url;
+        if (language === 'en' && !isEnglish(title)) continue;
+        
+        let description = '';
+        let imageUrl: string | undefined;
+        const parent = link.closest('div, article, li');
+        if (parent) {
+          const descElement = parent.querySelector('p, .summary, .intro');
+          description = descElement?.textContent?.trim() || '';
+          
+          const imgElement = parent.querySelector('img');
+          imageUrl = imgElement?.getAttribute('src') || imgElement?.getAttribute('data-src') || undefined;
+          if (imageUrl && imageUrl.startsWith('/')) imageUrl = 'https://www.thehindu.com' + imageUrl;
+        }
+        
+        const article: NewsArticle = {
+          id: `archive-hindu-${date.getTime()}-${i}`,
+          title,
+          content: description || `${title}. Historical news from The Hindu archive.`,
+          summary: description.substring(0, 200) || `Historical news from ${date.toDateString()}`,
+          source: { name: 'THE HINDU' },
+          date: date,
+          topics: detectTopics(title + ' ' + description, topics),
+          language,
+          url,
+          imageUrl,
+          bookmarked: false,
+          hasRealContent: description.length > 50
+        };
+        
+        articles.push(article);
+      }
+      
+      console.log(`📰 The Hindu: ${articles.length} articles`);
+      break;
+    } catch (error) {
+      continue;
+    }
+  }
+  
+  return articles;
 }
 
 /**
