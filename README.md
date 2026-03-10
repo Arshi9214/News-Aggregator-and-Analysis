@@ -1,761 +1,318 @@
-# AI-Powered News Summarization and Analysis System
+# 🚀 AI News Analyzer - Intelligent News Aggregation & Analysis
 
-## Abstract
+<div align="center">
 
-This paper presents a comprehensive web-based application for intelligent news aggregation, summarization, and analysis using artificial intelligence. The system implements a client-server architecture with SQLite database backend, JWT authentication, and Groq AI integration for natural language processing. The application supports multi-language content processing across 11 Indian languages and provides cross-device synchronization capabilities.
+[![Live Demo](https://img.shields.io/badge/Live-Demo-success?style=for-the-badge&logo=vercel)](https://news-aggregator-and-analysis.vercel.app)
+[![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-**Keywords:** News Aggregation, Natural Language Processing, AI Summarization, Multi-language Support, Cross-device Synchronization
+**Transform how you consume news with AI-powered summaries in 11 Indian languages**
 
----
+[🌐 Live Demo](https://news-aggregator-and-analysis.vercel.app) • [📖 Documentation](#features) • [🚀 Quick Start](#installation)
 
-## I. INTRODUCTION
-
-### A. Motivation
-
-In the digital age, information overload presents a significant challenge for users seeking to stay informed. Traditional news consumption methods require substantial time investment and often lack personalized analysis. This system addresses these challenges by providing:
-
-1. Automated news aggregation from multiple trusted sources
-2. AI-powered content summarization and analysis
-3. Multi-language support for diverse user bases
-4. Cross-device accessibility with data synchronization
-5. Secure user authentication and data isolation
-
-### B. Objectives
-
-- Develop a scalable news aggregation system with real-time RSS feed processing
-- Implement AI-driven content analysis using state-of-the-art language models
-- Provide secure multi-user authentication with role-based access control
-- Enable cross-device data synchronization through RESTful API architecture
-- Support PDF document processing and analysis
+</div>
 
 ---
 
-## II. SYSTEM ARCHITECTURE
+## ✨ Features
 
-### A. Overall System Architecture
+### 🤖 AI-Powered Intelligence
+- **Smart Summarization**: Get concise summaries of lengthy articles using Groq Llama 3.3 (70B parameters)
+- **Deep Analysis**: Extract key insights, sentiment, and main topics automatically
+- **PDF Processing**: Upload and analyze PDF documents with AI-powered extraction
 
-The proposed system follows a **three-tier client-server architecture** comprising the **Presentation Layer**, **Application Layer**, and **Data Layer**. The architecture is designed to ensure **scalability**, **modularity**, and **security** while maintaining **high performance** and **cross-platform compatibility**.
+### 🌍 Multi-Language Support
+Support for **11 Indian languages** with real-time translation:
+- 🇮🇳 English, Hindi, Tamil, Bengali, Telugu, Marathi
+- 🇮🇳 Gujarati, Kannada, Malayalam, Punjabi, Urdu
 
-```mermaid
-graph TD
-    subgraph "<b><font size=6>━━━ PRESENTATION LAYER ━━━</font></b>"
-        UI["<b>React Web Client</b><br/>React 18.3.1 • TypeScript 5.0 • Tailwind CSS"]
-        MODULES["<b>UI Modules</b><br/>Authentication • Dashboard • News Feed • PDF Processor"]
-    end
-    
-    subgraph "<b><font size=6>━━━ APPLICATION LAYER ━━━</font></b>"
-        API["<b>API Gateway</b><br/>Express.js 5.2.1 • RESTful API • JWT Auth"]
-        
-        SERVICES["<b>Core Services</b><br/>User Service • Article Service • PDF Service • Auth Service"]
-        
-        INTEGRATION["<b>Integration Services</b><br/>RSS Aggregator • AI Engine (Groq Llama 3.3 70B) • Translation (11 Languages)"]
-    end
-    
-    subgraph "<b><font size=6>━━━ DATA LAYER ━━━</font></b>"
-        DB[("<b>SQLite Database</b><br/>better-sqlite3 • ACID • WAL Mode")]
-        SCHEMA["<b>Schema</b><br/>Users • Articles • PDFs • Preferences"]
-    end
-    
-    subgraph "<b><font size=6>━━━ EXTERNAL SERVICES ━━━</font></b>"
-        EXTERNAL["<b>Third-Party APIs</b><br/>RSS Feeds (TOI, Hindu, IE, NDTV) • Groq Cloud • Google Translate"]
-    end
-    
-    UI --> MODULES
-    MODULES --> API
-    API --> SERVICES
-    SERVICES --> INTEGRATION
-    SERVICES --> DB
-    DB --> SCHEMA
-    INTEGRATION --> EXTERNAL
-    
-    style UI fill:#e3f2fd,stroke:#1976d2,stroke-width:4px,font-size:16px
-    style MODULES fill:#bbdefb,stroke:#1976d2,stroke-width:3px
-    style API fill:#fff3e0,stroke:#f57c00,stroke-width:4px,font-size:16px
-    style SERVICES fill:#ffe0b2,stroke:#f57c00,stroke-width:3px
-    style INTEGRATION fill:#ffcc80,stroke:#f57c00,stroke-width:3px
-    style DB fill:#fce4ec,stroke:#c2185b,stroke-width:4px,font-size:16px
-    style SCHEMA fill:#f8bbd0,stroke:#c2185b,stroke-width:3px
-    style EXTERNAL fill:#e0f2f1,stroke:#00897b,stroke-width:4px,font-size:16px
-```
+### 📰 Comprehensive News Aggregation
+- **10+ Trusted Sources**: Times of India, The Hindu, Indian Express, NDTV, and more
+- **Historical Archives**: Access news from 1997 onwards
+- **Smart Filtering**: Filter by topics, date ranges, and sources
+- **Image Extraction**: Automatic thumbnail extraction from RSS feeds
 
-### B. Detailed Component Architecture
+### 🔐 Secure Authentication
+- **Strong Password Validation**: Enforced password requirements (8+ chars, uppercase, lowercase, numbers, special characters)
+- **Security Questions**: Password recovery without email
+- **JWT Authentication**: Secure token-based authentication
+- **User Data Isolation**: Each user's data is completely isolated
 
-The system implements a **layered architecture pattern** with clear **separation of concerns**. Each layer communicates through **well-defined interfaces** ensuring **loose coupling** and **high cohesion**.
+### 💾 Cross-Device Sync
+- **Cloud Storage**: SQLite database with RESTful API
+- **Bookmarks**: Save and sync your favorite articles across devices
+- **Preferences**: Personalized settings synced everywhere
 
-```mermaid
-graph LR
-    subgraph "<b>CLIENT TIER</b>"
-        direction TB
-        C1["<b>React Components</b><br/>• NewsAggregator<br/>• PDFProcessor<br/>• AnalysisViewer<br/>• Dashboard<br/>• UserAuth"]
-        C2["<b>State Management</b><br/>• React Hooks<br/>• Context API<br/>• Local Storage"]
-        C3["<b>API Client</b><br/>• Fetch API<br/>• JWT Interceptor<br/>• Error Handling"]
-    end
-    
-    subgraph "<b>SERVER TIER</b>"
-        direction TB
-        S1["<b>Route Handlers</b><br/>• /auth/*<br/>• /articles/*<br/>• /pdfs/*<br/>• /stats/*"]
-        S2["<b>Middleware</b><br/>• JWT Verification<br/>• CORS Handler<br/>• Body Parser<br/>• Error Handler"]
-        S3["<b>Business Logic</b><br/>• User Management<br/>• Content Processing<br/>• AI Integration<br/>• Data Validation"]
-        S4["<b>Data Access Layer</b><br/>• SQL Queries<br/>• Transaction Mgmt<br/>• Connection Pool"]
-    end
-    
-    subgraph "<b>DATABASE TIER</b>"
-        direction TB
-        D1[("<b>SQLite DB</b><br/>• Users<br/>• Articles<br/>• PDFs<br/>• Preferences")]
-        D2["<b>Indexes</b><br/>• user_id<br/>• created_at<br/>• bookmarked"]
-        D3["<b>Constraints</b><br/>• Foreign Keys<br/>• Unique Keys<br/>• NOT NULL"]
-    end
-    
-    C1 --> C2
-    C2 --> C3
-    C3 -->|HTTPS/REST| S1
-    S1 --> S2
-    S2 --> S3
-    S3 --> S4
-    S4 -->|SQL| D1
-    D1 --> D2
-    D1 --> D3
-    
-    style C1 fill:#bbdefb,stroke:#1976d2,stroke-width:2px
-    style C2 fill:#bbdefb,stroke:#1976d2,stroke-width:2px
-    style C3 fill:#bbdefb,stroke:#1976d2,stroke-width:2px
-    style S1 fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
-    style S2 fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
-    style S3 fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
-    style S4 fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
-    style D1 fill:#f8bbd0,stroke:#c2185b,stroke-width:2px
-    style D2 fill:#f8bbd0,stroke:#c2185b,stroke-width:2px
-    style D3 fill:#f8bbd0,stroke:#c2185b,stroke-width:2px
-```
-
-### C. System Block Diagram
-
-Fig. 1 illustrates the **functional block diagram** of the proposed AI-powered news summarization system. The system consists of **six major modules**: **User Interface Module**, **Authentication Module**, **Content Aggregation Module**, **AI Processing Module**, **Storage Module**, and **External Integration Module**.
-
-```mermaid
-graph TD
-    subgraph "<b>INPUT LAYER</b>"
-        USER(["<b>END USER</b><br/>Web Browser<br/>Multi-device Access"])
-    end
-    
-    subgraph "<b>PROCESSING CORE</b>"
-        direction LR
-        
-        subgraph "<b>Module 1: Authentication</b>"
-            M1A["<b>Registration</b><br/>bcrypt Hashing<br/>Email Validation"]
-            M1B["<b>Login</b><br/>JWT Generation<br/>Session Management"]
-            M1C["<b>Authorization</b><br/>Token Verification<br/>Role-based Access"]
-        end
-        
-        subgraph "<b>Module 2: Content Aggregation</b>"
-            M2A["<b>RSS Fetcher</b><br/>10+ News Sources<br/>CORS Proxy"]
-            M2B["<b>Parser</b><br/>XML/JSON Parsing<br/>Content Extraction"]
-            M2C["<b>Filter</b><br/>Topic Classification<br/>Deduplication"]
-        end
-        
-        subgraph "<b>Module 3: AI Processing</b>"
-            M3A["<b>Preprocessor</b><br/>Text Cleaning<br/>Tokenization"]
-            M3B["<b>LLM Engine</b><br/>Groq Llama 3.3<br/>70B Parameters"]
-            M3C["<b>Postprocessor</b><br/>JSON Parsing<br/>Result Formatting"]
-        end
-        
-        subgraph "<b>Module 4: PDF Processing</b>"
-            M4A["<b>Upload Handler</b><br/>File Validation<br/>Size Check (50MB)"]
-            M4B["<b>Text Extractor</b><br/>PDF.js 4.9.155<br/>Multi-page Support"]
-            M4C["<b>Analyzer</b><br/>AI Summarization<br/>Key Extraction"]
-        end
-        
-        subgraph "<b>Module 5: Translation</b>"
-            M5A["<b>Language Detector</b><br/>Auto-detection<br/>11 Languages"]
-            M5B["<b>Translator</b><br/>Google Translate<br/>Batch Processing"]
-            M5C["<b>Cache Manager</b><br/>Translation Storage<br/>Performance Opt"]
-        end
-        
-        subgraph "<b>Module 6: Data Management</b>"
-            M6A["<b>CRUD Operations</b><br/>Create/Read<br/>Update/Delete"]
-            M6B["<b>Query Optimizer</b><br/>Indexed Queries<br/>Transaction Mgmt"]
-            M6C["<b>Backup System</b><br/>Auto-backup<br/>Data Recovery"]
-        end
-    end
-    
-    subgraph "<b>STORAGE LAYER</b>"
-        DB1[("<b>Users DB</b><br/>Authentication<br/>Profiles")]
-        DB2[("<b>Content DB</b><br/>Articles<br/>PDFs")]
-        DB3[("<b>Config DB</b><br/>Preferences<br/>Settings")]
-    end
-    
-    subgraph "<b>EXTERNAL SERVICES</b>"
-        EXT1["<b>RSS Feeds</b><br/>News Sources"]
-        EXT2["<b>Groq API</b><br/>AI Service"]
-        EXT3["<b>Translation API</b><br/>Language Service"]
-    end
-    
-    subgraph "<b>OUTPUT LAYER</b>"
-        OUT1["<b>Dashboard</b><br/>Statistics<br/>Overview"]
-        OUT2["<b>News Feed</b><br/>Summarized Articles<br/>Analysis"]
-        OUT3["<b>PDF Viewer</b><br/>Document Analysis<br/>Insights"]
-    end
-    
-    USER --> M1A
-    USER --> M1B
-    M1A --> M1C
-    M1B --> M1C
-    
-    M1C --> M2A
-    M1C --> M4A
-    
-    M2A --> EXT1
-    M2A --> M2B
-    M2B --> M2C
-    M2C --> M3A
-    
-    M4A --> M4B
-    M4B --> M4C
-    M4C --> M3A
-    
-    M3A --> M3B
-    M3B --> EXT2
-    M3B --> M3C
-    M3C --> M5A
-    
-    M5A --> M5B
-    M5B --> EXT3
-    M5B --> M5C
-    M5C --> M6A
-    
-    M6A --> M6B
-    M6B --> M6C
-    M6C --> DB1
-    M6C --> DB2
-    M6C --> DB3
-    
-    DB1 --> OUT1
-    DB2 --> OUT2
-    DB2 --> OUT3
-    DB3 --> OUT1
-    
-    OUT1 --> USER
-    OUT2 --> USER
-    OUT3 --> USER
-    
-    style USER fill:#4fc3f7,stroke:#01579b,stroke-width:4px
-    style M1A fill:#ce93d8,stroke:#4a148c,stroke-width:2px
-    style M1B fill:#ce93d8,stroke:#4a148c,stroke-width:2px
-    style M1C fill:#ce93d8,stroke:#4a148c,stroke-width:2px
-    style M2A fill:#a5d6a7,stroke:#1b5e20,stroke-width:2px
-    style M2B fill:#a5d6a7,stroke:#1b5e20,stroke-width:2px
-    style M2C fill:#a5d6a7,stroke:#1b5e20,stroke-width:2px
-    style M3A fill:#ffcc80,stroke:#e65100,stroke-width:2px
-    style M3B fill:#ffcc80,stroke:#e65100,stroke-width:2px
-    style M3C fill:#ffcc80,stroke:#e65100,stroke-width:2px
-    style M4A fill:#90caf9,stroke:#0d47a1,stroke-width:2px
-    style M4B fill:#90caf9,stroke:#0d47a1,stroke-width:2px
-    style M4C fill:#90caf9,stroke:#0d47a1,stroke-width:2px
-    style M5A fill:#fff59d,stroke:#f57f17,stroke-width:2px
-    style M5B fill:#fff59d,stroke:#f57f17,stroke-width:2px
-    style M5C fill:#fff59d,stroke:#f57f17,stroke-width:2px
-    style M6A fill:#ef9a9a,stroke:#b71c1c,stroke-width:2px
-    style M6B fill:#ef9a9a,stroke:#b71c1c,stroke-width:2px
-    style M6C fill:#ef9a9a,stroke:#b71c1c,stroke-width:2px
-    style DB1 fill:#f48fb1,stroke:#880e4f,stroke-width:3px
-    style DB2 fill:#f48fb1,stroke:#880e4f,stroke-width:3px
-    style DB3 fill:#f48fb1,stroke:#880e4f,stroke-width:3px
-    style EXT1 fill:#80deea,stroke:#006064,stroke-width:2px
-    style EXT2 fill:#80deea,stroke:#006064,stroke-width:2px
-    style EXT3 fill:#80deea,stroke:#006064,stroke-width:2px
-    style OUT1 fill:#c5e1a5,stroke:#33691e,stroke-width:2px
-    style OUT2 fill:#c5e1a5,stroke:#33691e,stroke-width:2px
-    style OUT3 fill:#c5e1a5,stroke:#33691e,stroke-width:2px
-```
+### 🎨 Beautiful UI/UX
+- **3 Theme Modes**: Light, Dark, and Newspaper
+- **Responsive Design**: Perfect on mobile, tablet, and desktop
+- **Smooth Animations**: Polished user experience
+- **Intuitive Navigation**: Easy-to-use interface
 
 ---
 
-## III. DATABASE DESIGN
+## 🎯 Use Cases
 
-### A. Entity-Relationship Diagram
-
-```mermaid
-erDiagram
-    USERS ||--o{ ARTICLES : creates
-    USERS ||--o{ PDFS : uploads
-    USERS ||--|| PREFERENCES : has
-    
-    USERS {
-        string id PK
-        string name UK
-        string email UK
-        string password
-        datetime created_at
-    }
-    
-    ARTICLES {
-        string id PK
-        string user_id FK
-        string title
-        text content
-        string source
-        json analysis
-        boolean bookmarked
-    }
-    
-    PDFS {
-        string id PK
-        string user_id FK
-        string name
-        text content
-        json analysis
-        boolean bookmarked
-    }
-    
-    PREFERENCES {
-        integer id PK
-        string user_id FK
-        string language
-        json topics
-        string theme
-    }
-```
-
-### B. Database Schema
-
-**Table: Users**
-- id (PK), name (UK), email (UK), password
-- created_at, last_login
-- Methods: createUser(), authenticate()
-
-**Table: Articles**
-- id (PK), user_id (FK), title, content, source
-- url, date, topics (JSON), language, bookmarked
-- analysis (JSON), created_at, updated_at
-
-**Table: PDFs**
-- id (PK), user_id (FK), name, content
-- upload_date, page_count, bookmarked
-- analysis (JSON), created_at, updated_at
-
-**Table: Preferences**
-- id (PK), user_id (FK), language
-- selected_topics (JSON), theme_mode
-- analysis_depth, last_sync
+- **📚 Students**: Quickly summarize research articles and news for assignments
+- **🎓 UPSC Aspirants**: Stay updated with current affairs in your preferred language
+- **💼 Professionals**: Get daily news briefings without reading full articles
+- **🌐 Multilingual Users**: Read news in your native language
+- **📄 Researchers**: Analyze PDF documents and extract key information
 
 ---
 
-## IV. DATA FLOW DIAGRAMS
+## 🛠️ Technology Stack
 
-### A. Level 0 DFD (Context Diagram)
+### Frontend
+- **React 18.3.1** - Modern UI library
+- **TypeScript 5.0** - Type-safe development
+- **Vite 6.3.5** - Lightning-fast build tool
+- **Tailwind CSS 3.4.0** - Utility-first styling
+- **Lucide React** - Beautiful icons
 
-```mermaid
-graph LR
-    U((User))
-    S[System]
-    R[RSS]
-    A[AI]
-    
-    U -->|Input| S
-    S -->|Output| U
-    S <-->|Data| R
-    S <-->|Analysis| A
-```
+### Backend
+- **Node.js 18+** - JavaScript runtime
+- **Express.js 5.2.1** - Web framework
+- **SQLite 3.x** - Embedded database
+- **better-sqlite3** - Fast SQLite driver
 
-### B. Level 1 DFD (System Processes)
+### AI & Processing
+- **Groq API** - Llama 3.3 70B model
+- **PDF.js 4.9.155** - PDF text extraction
+- **Google Translate API** - Multi-language translation
 
-```mermaid
-graph TD
-    U((User))
-    P1[Auth]
-    P2[News]
-    P3[AI]
-    P4[Content]
-    DB[(DB)]
-    
-    U --> P1
-    U --> P2
-    P2 --> P3
-    P3 --> P4
-    P4 --> DB
-    P4 --> U
-```
-
-### C. Process Flow
-
-**News Aggregation:** Fetch RSS → Parse → Filter → Deduplicate
-
-**AI Analysis:** Prepare → Call API → Parse → Extract Insights
-
-**Content Management:** Save → Bookmark → Search → Retrieve
+### Security
+- **bcryptjs** - Password hashing
+- **jsonwebtoken** - JWT authentication
+- **CORS** - Cross-origin security
 
 ---
 
-## V. STATE TRANSITION DIAGRAMS
-
-### A. User Authentication States
-
-```mermaid
-stateDiagram-v2
-    [*] --> Unauthenticated
-    Unauthenticated --> LoginPage : Access App
-    Unauthenticated --> SignupPage : Create Account
-    
-    LoginPage --> Authenticating : Submit Credentials
-    SignupPage --> CreatingAccount : Submit Form
-    CreatingAccount --> Authenticated : Success
-    CreatingAccount --> SignupPage : Error
-    
-    Authenticating --> Authenticated : Valid Credentials
-    Authenticating --> LoginPage : Invalid Credentials
-    
-    Authenticated --> Dashboard : Load User Data
-    Dashboard --> FetchingNews : Request News
-    Dashboard --> UploadingPDF : Upload PDF
-    Dashboard --> ViewingContent : View Article/PDF
-    Dashboard --> ManagingBookmarks : Toggle Bookmark
-    
-    FetchingNews --> ProcessingAI : Analyze Content
-    ProcessingAI --> Dashboard : Display Results
-    
-    UploadingPDF --> ExtractingText : Parse PDF
-    ExtractingText --> ProcessingAI : Analyze Text
-    
-    ViewingContent --> Dashboard : Back
-    ManagingBookmarks --> Dashboard : Update Complete
-    
-    Dashboard --> LoggingOut : Logout
-    LoggingOut --> Unauthenticated : Clear Session
-    
-    Authenticated --> [*] : Session Expired
-```
-
-### B. Article Processing State Diagram
-
-```mermaid
-stateDiagram-v2
-    [*] --> Idle
-    
-    Idle --> FetchingRSS : User Request
-    FetchingRSS --> ParsingFeed : RSS Data Received
-    FetchingRSS --> Error : Network Error
-    
-    ParsingFeed --> FilteringTopics : Parse Success
-    ParsingFeed --> Error : Parse Error
-    
-    FilteringTopics --> Deduplicating : Topics Matched
-    FilteringTopics --> Idle : No Matches
-    
-    Deduplicating --> QueuedForAI : Unique Articles
-    Deduplicating --> Idle : All Duplicates
-    
-    QueuedForAI --> CallingAI : Process Next
-    CallingAI --> ReceivingAnalysis : API Call Success
-    CallingAI --> RetryQueue : API Error
-    
-    RetryQueue --> CallingAI : Retry Attempt
-    RetryQueue --> Error : Max Retries
-    
-    ReceivingAnalysis --> ParsingAnalysis : Response Received
-    ParsingAnalysis --> SavingToDatabase : Parse Success
-    ParsingAnalysis --> Error : Parse Error
-    
-    SavingToDatabase --> DisplayingToUser : Save Success
-    SavingToDatabase --> Error : Database Error
-    
-    DisplayingToUser --> Idle : Complete
-    Error --> Idle : Error Handled
-    
-    Idle --> [*]
-```
-
-### C. PDF Processing State Diagram
-
-```mermaid
-stateDiagram-v2
-    [*] --> AwaitingUpload
-    
-    AwaitingUpload --> Validating : File Selected
-    Validating --> Uploading : Valid PDF
-    Validating --> AwaitingUpload : Invalid File
-    
-    Uploading --> ExtractingText : Upload Complete
-    Uploading --> UploadError : Upload Failed
-    
-    ExtractingText --> TextExtracted : Extraction Success
-    ExtractingText --> ExtractionError : Extraction Failed
-    
-    TextExtracted --> PreparingForAI : Text Ready
-    PreparingForAI --> CallingAI : Content Formatted
-    
-    CallingAI --> AnalysisReceived : AI Response
-    CallingAI --> AIError : API Error
-    
-    AnalysisReceived --> ParsingAnalysis : Process Response
-    ParsingAnalysis --> SavingPDF : Parse Success
-    ParsingAnalysis --> ParseError : Parse Failed
-    
-    SavingPDF --> Saved : Database Write Success
-    SavingPDF --> SaveError : Database Error
-    
-    Saved --> DisplayingResult : Show to User
-    DisplayingResult --> [*] : Complete
-    
-    UploadError --> [*] : Error Handled
-    ExtractionError --> [*] : Error Handled
-    AIError --> [*] : Error Handled
-    ParseError --> [*] : Error Handled
-    SaveError --> [*] : Error Handled
-```
-
-### D. Bookmark Management
-
-```mermaid
-stateDiagram-v2
-    [*] --> Unbookmarked
-    Unbookmarked --> Bookmarked : Toggle
-    Bookmarked --> Unbookmarked : Toggle
-    Unbookmarked --> [*]
-    Bookmarked --> [*]
-```
-
----
-
-## VI. SEQUENCE DIAGRAMS
-
-### A. User Registration
-
-```mermaid
-sequenceDiagram
-    User->>UI: Register
-    UI->>API: POST /auth/register
-    API->>DB: Create User
-    DB-->>API: Success
-    API-->>UI: JWT Token
-    UI-->>User: Dashboard
-```
-
-### B. News Fetching
-
-```mermaid
-sequenceDiagram
-    User->>UI: Fetch News
-    UI->>RSS: Get Feeds
-    RSS-->>UI: Articles
-    UI->>AI: Analyze
-    AI-->>UI: Summary
-    UI->>API: Save
-    API->>DB: Store
-    UI-->>User: Display
-```
-
-### C. PDF Processing
-
-```mermaid
-sequenceDiagram
-    User->>UI: Upload PDF
-    UI->>Parser: Extract
-    Parser-->>UI: Text
-    UI->>AI: Analyze
-    AI-->>UI: Summary
-    UI->>API: Save
-    API->>DB: Store
-    UI-->>User: Display
-```
-
----
-
-## VII. IMPLEMENTATION
-
-### A. Technology Stack
-
-| Layer | Technology | Version | Purpose |
-|-------|-----------|---------|---------|
-| **Frontend** | React | 18.3.1 | UI Framework |
-| | TypeScript | 5.0 | Type Safety |
-| | Vite | 6.3.5 | Build Tool |
-| | Tailwind CSS | 3.4.0 | Styling |
-| **Backend** | Node.js | 18+ | Runtime |
-| | Express.js | 5.2.1 | Web Framework |
-| | SQLite | 3.x | Database |
-| | better-sqlite3 | 12.6.2 | DB Driver |
-| **Security** | bcryptjs | 3.0.3 | Password Hashing |
-| | jsonwebtoken | 9.0.3 | JWT Auth |
-| **AI** | Groq API | Latest | LLM Integration |
-| **PDF** | PDF.js | 4.9.155 | PDF Processing |
-
-### B. API Endpoints
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/auth/register` | User registration | No |
-| POST | `/api/auth/login` | User login | No |
-| GET | `/api/users` | Get all users (admin) | Yes |
-| POST | `/api/articles` | Save article | Yes |
-| GET | `/api/articles` | Get user articles | Yes |
-| PATCH | `/api/articles/:id/bookmark` | Toggle bookmark | Yes |
-| POST | `/api/pdfs` | Save PDF | Yes |
-| GET | `/api/pdfs` | Get user PDFs | Yes |
-| PATCH | `/api/pdfs/:id/bookmark` | Toggle PDF bookmark | Yes |
-| GET | `/api/stats` | Get user statistics | Yes |
-| GET | `/api/admin/user-stats/:userId` | Get any user stats | Yes |
-
----
-
-## VIII. SECURITY ARCHITECTURE
-
-### A. Security Layers
-
-```mermaid
-graph TB
-    subgraph "Application Security"
-        AUTH[JWT Authentication]
-        RBAC[Role-Based Access Control]
-        VALID[Input Validation]
-    end
-    
-    subgraph "Data Security"
-        ENCRYPT[Password Encryption<br/>bcrypt]
-        SQL[SQL Injection Prevention<br/>Prepared Statements]
-        XSS[XSS Protection<br/>Content Sanitization]
-    end
-    
-    subgraph "Network Security"
-        HTTPS[HTTPS/TLS]
-        CORS[CORS Policy]
-        RATE[Rate Limiting]
-    end
-    
-    subgraph "Database Security"
-        ISOLATION[User Data Isolation]
-        CASCADE[Cascade Delete]
-        INDEX[Indexed Queries]
-    end
-    
-    AUTH --> ENCRYPT
-    RBAC --> ISOLATION
-    VALID --> SQL
-    VALID --> XSS
-    HTTPS --> CORS
-    CORS --> RATE
-```
-
----
-
-## IX. DEPLOYMENT ARCHITECTURE
-
-### A. Development Environment
-```
-Frontend: http://localhost:3000
-Backend: http://localhost:5000
-Database: ./server/newsapp.db
-```
-
-### B. Production Environment
-```
-Frontend: Vercel/Netlify (Static Hosting)
-Backend: AWS EC2/DigitalOcean (Node.js Server)
-Database: SQLite with automated backups
-CDN: CloudFlare for static assets
-```
-
-### C. Network Configuration
-```
-Server Binding: 0.0.0.0 (All interfaces)
-CORS Origins: Configurable whitelist
-API Rate Limiting: 100 requests/minute/user
-Max Payload Size: 50MB (for PDF uploads)
-```
-
----
-
-## X. PERFORMANCE METRICS
-
-| Metric | Target | Actual |
-|--------|--------|--------|
-| Page Load Time | < 2s | 1.8s |
-| API Response Time | < 200ms | 150ms |
-| Database Query Time | < 50ms | 35ms |
-| AI Analysis Time | 2-5s | 3.2s |
-| Concurrent Users | 100+ | 150 |
-
----
-
-## XI. MULTI-LANGUAGE SUPPORT
-
-| Language | Code | Native Script | User Base |
-|----------|------|---------------|-----------|
-| English | en | English | Primary |
-| Hindi | hi | हिंदी | 500M+ |
-| Tamil | ta | தமிழ் | 80M+ |
-| Bengali | bn | বাংলা | 265M+ |
-| Telugu | te | తెలుగు | 95M+ |
-| Marathi | mr | मराठी | 83M+ |
-| Gujarati | gu | ગુજરાતી | 60M+ |
-| Kannada | kn | ಕನ್ನಡ | 50M+ |
-| Malayalam | ml | മലയാളം | 38M+ |
-| Punjabi | pa | ਪੰਜਾਬੀ | 125M+ |
-| Urdu | ur | اردو | 230M+ |
-
----
-
-## XII. CONCLUSION
-
-This AI-powered news summarization system demonstrates a comprehensive approach to modern web application development, incorporating secure authentication, intelligent content processing, and cross-device synchronization. The system successfully addresses the challenges of information overload through automated aggregation and AI-driven analysis while maintaining high standards of security and performance.
-
----
-
-## XIII. REFERENCES
-
-1. React Documentation. "React 18: Concurrent Features." https://react.dev/
-2. Express.js Guide. "Production Best Practices." https://expressjs.com/
-3. SQLite Documentation. "Write-Ahead Logging." https://sqlite.org/wal.html
-4. Groq. "Llama 3.1 Model Documentation." https://console.groq.com/docs
-5. OWASP. "Top 10 Web Application Security Risks." https://owasp.org/
-6. JWT.io. "JSON Web Token Introduction." https://jwt.io/introduction
-7. Mozilla. "PDF.js Documentation." https://mozilla.github.io/pdf.js/
-
----
-
-## APPENDIX: INSTALLATION GUIDE
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ and npm
-- Git
-- Groq API keys
+- Node.js 18 or higher
+- npm or yarn
+- Groq API key ([Get one free](https://console.groq.com))
 
-### Installation Steps
+### Installation
 
 ```bash
-# Clone repository
-git clone <repository-url>
+# Clone the repository
+git clone https://github.com/Arshi9214/News-Aggregator-and-Analysis.git
 cd "AI News Summarizer App 2.0"
 
-# Install dependencies
+# Install frontend dependencies
 npm install
-cd server && npm install && cd ..
 
-# Configure environment
+# Install backend dependencies
+cd server
+npm install
+cd ..
+
+# Create environment file
 cp .env.example .env
-# Add API keys to .env
+```
 
-# Start backend
-cd server && npm start
+### Configuration
 
-# Start frontend (new terminal)
+Edit `.env` file:
+```env
+VITE_GROQ_API_KEY=your_groq_api_key_here
+VITE_API_URL=http://localhost:5000/api
+```
+
+Edit `server/.env` file:
+```env
+PORT=5000
+JWT_SECRET=your_secure_jwt_secret_here
+NODE_ENV=development
+```
+
+### Running Locally
+
+```bash
+# Terminal 1 - Start backend
+cd server
+npm start
+
+# Terminal 2 - Start frontend
 npm run dev
 ```
 
-### Network Access
+Visit `http://localhost:5173` in your browser.
 
-```bash
-# Find your IP address
-ipconfig  # Windows
+---
 
-# Update .env
-VITE_API_URL=http://YOUR_IP:5000/api
+## 📱 Usage
 
-# Access from other devices
-http://YOUR_IP:3000
+### 1. Create Account
+- Click "Get Started" on the landing page
+- Fill in your details with a strong password
+- Select a security question for password recovery
+
+### 2. Fetch News
+- Choose your preferred language
+- Select topics of interest
+- Pick a date range (Last 24h, Week, Month, or Custom)
+- Click "Fetch News" and let AI do the magic
+
+### 3. Analyze Articles
+- View AI-generated summaries
+- Read key insights and sentiment analysis
+- Bookmark important articles
+- Translate to any supported language
+
+### 4. Process PDFs
+- Upload PDF documents (up to 50MB)
+- Extract text automatically
+- Get AI-powered analysis
+- Save for future reference
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER                    │
+│  React • TypeScript • Tailwind CSS • Responsive Design  │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│                    APPLICATION LAYER                     │
+│   Express.js • RESTful API • JWT Auth • CORS Policy    │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│                       DATA LAYER                         │
+│    SQLite • better-sqlite3 • ACID • WAL Mode            │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│                   EXTERNAL SERVICES                      │
+│   Groq AI • RSS Feeds • Google Translate • PDF.js      │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-**License:** MIT  
-**Version:** 2.0  
-**Last Updated:** 2025
+## 🔒 Security Features
+
+- ✅ **Password Hashing**: bcrypt with salt rounds
+- ✅ **JWT Tokens**: Secure authentication with 30-day expiry
+- ✅ **SQL Injection Prevention**: Prepared statements
+- ✅ **XSS Protection**: Content sanitization
+- ✅ **CORS Policy**: Whitelist-based origin control
+- ✅ **Security Questions**: Password recovery without email
+- ✅ **Strong Password Policy**: Enforced complexity requirements
+
+---
+
+## 📊 API Endpoints
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/api/auth/register` | Create new account | ❌ |
+| `POST` | `/api/auth/login` | User login | ❌ |
+| `POST` | `/api/auth/reset-password` | Reset password | ❌ |
+| `GET` | `/api/articles` | Get user articles | ✅ |
+| `POST` | `/api/articles` | Save article | ✅ |
+| `PATCH` | `/api/articles/:id/bookmark` | Toggle bookmark | ✅ |
+| `GET` | `/api/pdfs` | Get user PDFs | ✅ |
+| `POST` | `/api/pdfs` | Save PDF | ✅ |
+| `GET` | `/api/stats` | Get statistics | ✅ |
+| `GET` | `/api/proxy/rss` | RSS proxy | ❌ |
+| `GET` | `/api/proxy/scrape` | Article scraper | ❌ |
+
+---
+
+## 🌐 Deployment
+
+### Frontend (Vercel)
+```bash
+npm run build
+# Deploy to Vercel via GitHub integration
+```
+
+### Backend (Render/Railway/Heroku)
+```bash
+cd server
+npm start
+# Deploy via platform-specific CLI or GitHub integration
+```
+
+**Live URLs:**
+- Frontend: https://news-aggregator-and-analysis.vercel.app
+- Backend: Your Render/Railway deployment URL
+
+---
+
+## 📈 Performance
+
+| Metric | Target | Actual |
+|--------|--------|--------|
+| Page Load | < 2s | 1.8s ⚡ |
+| API Response | < 200ms | 150ms ⚡ |
+| Database Query | < 50ms | 35ms ⚡ |
+| AI Analysis | 2-5s | 3.2s ⚡ |
+| Concurrent Users | 100+ | 150+ ⚡ |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👨‍💻 Author
+
+**Arshi**
+- GitHub: [@Arshi9214](https://github.com/Arshi9214)
+- Email: arshi9214@gmail.com
+
+---
+
+## 🙏 Acknowledgments
+
+- [Groq](https://groq.com) for providing fast AI inference
+- [React](https://react.dev) for the amazing UI library
+- [Tailwind CSS](https://tailwindcss.com) for beautiful styling
+- [Vercel](https://vercel.com) for seamless deployment
+- All the news sources for providing RSS feeds
+
+---
+
+## 📞 Support
+
+If you encounter any issues or have questions:
+- 🐛 [Report a Bug](https://github.com/Arshi9214/News-Aggregator-and-Analysis/issues)
+- 💡 [Request a Feature](https://github.com/Arshi9214/News-Aggregator-and-Analysis/issues)
+- 📧 Email: arshi9214@gmail.com
+
+---
+
+<div align="center">
+
+**⭐ Star this repo if you find it useful!**
+
+Made with ❤️ by Arshi
+
+[🌐 Visit Live Demo](https://news-aggregator-and-analysis.vercel.app)
+
+</div>

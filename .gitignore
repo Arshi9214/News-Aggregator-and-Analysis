@@ -33,9 +33,25 @@ Thumbs.db
 # Documentation (not needed on GitHub)
 *.md
 !README.md
-DEPLOYMENT_URLS.txt
 
-# Deployment scripts (optional - uncomment if you don't want them on GitHub)
-# deploy.bat
-# deploy.ps1
-# deploy-clean.bat
+# Deployment files
+DEPLOYMENT_URLS.txt
+deploy.bat
+deploy.ps1
+deploy-clean.bat
+*.bat
+CHECKLIST.md
+COMMANDS.md
+DEPLOY.md
+DEPLOYMENT_GUIDE.md
+DEPLOYMENT_VISUAL.md
+DEPLOY_NOW.md
+QUICK_DEPLOY.md
+RSS-PROXY-GUIDE.md
+RUN_ME_FIRST.md
+SCRAPER-DEPLOYMENT.md
+START_HERE.md
+TESTING_CHECKLIST.md
+VISUAL_GUIDE.md
+research_paper.tex
+test-rss-proxy.html
