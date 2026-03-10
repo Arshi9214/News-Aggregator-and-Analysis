@@ -301,12 +301,26 @@ function parseArchivePage(
       continue;
     }
     
-    // Try to get description from nearby elements
+    // Try to get description and image from nearby elements
     let description = '';
+    let imageUrl: string | undefined;
     const parent = link.closest('div, article, li');
     if (parent) {
       const descElement = parent.querySelector('p, .summary, .description, .excerpt');
       description = descElement?.textContent?.trim() || '';
+      
+      const imgElement = parent.querySelector('img');
+      imageUrl = imgElement?.getAttribute('src') || imgElement?.getAttribute('data-src') || undefined;
+      if (imageUrl && imageUrl.startsWith('/')) {
+        const baseUrls: Record<string, string> = {
+          hindu: 'https://www.thehindu.com',
+          toi: 'https://timesofindia.indiatimes.com',
+          indianExpress: 'https://indianexpress.com',
+          ndtv: 'https://www.ndtv.com',
+          livemint: 'https://www.livemint.com'
+        };
+        imageUrl = baseUrls[sourceName] + imageUrl;
+      }
     }
     
     const article: NewsArticle = {
@@ -319,8 +333,9 @@ function parseArchivePage(
       topics: detectTopics(title + ' ' + description, topics),
       language,
       url,
-      imageUrl: undefined,
-      bookmarked: false
+      imageUrl,
+      bookmarked: false,
+      hasRealContent: description.length > 50
     };
     
     articles.push(article);
@@ -636,19 +651,31 @@ async function scrapeTimesOfIndiaArchive(
         if (url.startsWith('/')) url = 'https://timesofindia.indiatimes.com' + url;
         if (language === 'en' && !isEnglish(title)) continue;
         
+        let description = '';
+        let imageUrl: string | undefined;
+        const parent = link.closest('div, article, li');
+        if (parent) {
+          const descElement = parent.querySelector('p, .summary, .description');
+          description = descElement?.textContent?.trim() || '';
+          
+          const imgElement = parent.querySelector('img');
+          imageUrl = imgElement?.getAttribute('src') || imgElement?.getAttribute('data-src') || undefined;
+          if (imageUrl && imageUrl.startsWith('/')) imageUrl = 'https://timesofindia.indiatimes.com' + imageUrl;
+        }
+        
         const article: NewsArticle = {
           id: `archive-toi-${date.getTime()}-${i}`,
           title,
-          content: `${title}. Historical news from Times of India archive.`,
-          summary: `Historical news from ${date.toDateString()}`,
+          content: description || `${title}. Historical news from Times of India archive.`,
+          summary: description.substring(0, 200) || `Historical news from ${date.toDateString()}`,
           source: { name: 'TIMES OF INDIA' },
           date: date,
-          topics: detectTopics(title, topics),
+          topics: detectTopics(title + ' ' + description, topics),
           language,
           url,
-          imageUrl: undefined,
+          imageUrl,
           bookmarked: false,
-          hasRealContent: false
+          hasRealContent: description.length > 50
         };
         
         articles.push(article);
