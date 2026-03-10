@@ -242,8 +242,12 @@ export function NewsAggregator({
     setLastLanguage(language);
     
     const translateArticles = async () => {
-      
       setIsTranslating(true);
+      const totalArticles = articles.length;
+      let translatedCount = 0;
+      
+      console.log(`🌐 Starting translation: ${totalArticles} articles to ${language}`);
+      
       try {
         const translated = [...articles];
         
@@ -261,6 +265,7 @@ export function NewsAggregator({
               translated[idx].title = translated[idx].originalTitle || article.title;
               translated[idx].content = translated[idx].originalContent || article.content;
               translated[idx].summary = translated[idx].originalSummary || article.summary;
+              translatedCount++;
               return;
             }
             
@@ -277,8 +282,11 @@ export function NewsAggregator({
             translated[idx].title = translated[idx].translations[language]!.title;
             translated[idx].summary = translated[idx].translations[language]!.content;
             translated[idx].content = translated[idx].translations[language]!.content;
+            translatedCount++;
           })
         );
+        
+        console.log(`✅ Translated ${translatedCount}/${totalArticles} articles (visible batch)`);
         
         // Update UI with visible articles translated
         onArticlesLoaded([...translated]);
@@ -303,6 +311,7 @@ export function NewsAggregator({
                   translated[globalIdx].title = translated[globalIdx].originalTitle || article.title;
                   translated[globalIdx].content = translated[globalIdx].originalContent || article.content;
                   translated[globalIdx].summary = translated[globalIdx].originalSummary || article.summary;
+                  translatedCount++;
                   return;
                 }
                 
@@ -319,8 +328,11 @@ export function NewsAggregator({
                 translated[globalIdx].title = translated[globalIdx].translations[language]!.title;
                 translated[globalIdx].summary = translated[globalIdx].translations[language]!.content;
                 translated[globalIdx].content = translated[globalIdx].translations[language]!.content;
+                translatedCount++;
               })
             );
+            
+            console.log(`✅ Translated ${translatedCount}/${totalArticles} articles`);
             
             // Update UI progressively
             onArticlesLoaded([...translated]);
@@ -329,8 +341,10 @@ export function NewsAggregator({
             await new Promise(resolve => setTimeout(resolve, 500));
           }
         }
+        
+        console.log(`🎉 Translation complete: ${translatedCount}/${totalArticles} articles translated to ${language}`);
       } catch (error) {
-        console.error('Translation failed:', error);
+        console.error('❌ Translation failed:', error);
       } finally {
         setIsTranslating(false);
       }
@@ -511,23 +525,6 @@ export function NewsAggregator({
       ? b.date.getTime() - a.date.getTime()
       : a.date.getTime() - b.date.getTime();
   });
-  
-  // Save search to database when search query changes with debounce
-  useEffect(() => {
-    if (searchQuery.trim() && filteredArticles.length > 0) {
-      const timeoutId = setTimeout(async () => {
-        try {
-          console.log('Search saved to database:', searchQuery);
-        } catch (error) {
-          console.error('Failed to save search history:', error);
-        }
-      }, 1000); // Debounce for 1 second
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [searchQuery, filteredArticles.length]);
-  
-  console.log('📋 Articles in component:', articles.length, 'Filtered:', filteredArticles.length);
 
   const handleExport = () => {
     const data = filteredArticles.map(article => ({
