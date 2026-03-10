@@ -93,7 +93,7 @@ export function DatabaseViewer({ language, themeMode }: DatabaseViewerProps) {
       
       for (const user of allUsers) {
         try {
-          const response = await fetch(`${API_URL}/api/admin/user-stats/${user.id}`, {
+          const response = await fetch(`${API_URL}/admin/user-stats/${user.id}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
