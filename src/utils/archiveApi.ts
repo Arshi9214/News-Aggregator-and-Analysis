@@ -69,14 +69,19 @@ export async function fetchArchiveNews(
   
   if (datesToScrape.length > 0) {
     
-    // Scrape from multiple news sources
+    // Scrape from multiple news sources with minimum date validation
     const archiveSources = [
-      { name: 'theHindu', scraper: scrapeTheHinduArchive },
-      { name: 'indianExpress', scraper: scrapeIndianExpressArchive },
-      { name: 'timesOfIndia', scraper: scrapeTimesOfIndiaArchive }
+      { name: 'indianExpress', scraper: scrapeIndianExpressArchive, minDate: new Date(1997, 4, 1) },
+      { name: 'theHindu', scraper: scrapeTheHinduArchive, minDate: new Date(2009, 8, 1) },
+      { name: 'timesOfIndia', scraper: scrapeTimesOfIndiaArchive, minDate: new Date(2000, 0, 1) }
     ];
     
   for (const source of archiveSources) {
+    if (dateRange.from < source.minDate) {
+      console.log(`⏭️ Skipping ${source.name} - archives only from ${source.minDate.toDateString()}`);
+      continue;
+    }
+    
     onProgress?.(`Fetching ${source.name} archives...`, source.name);
     
     for (const date of datesToScrape) {
