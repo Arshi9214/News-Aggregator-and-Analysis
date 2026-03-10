@@ -207,7 +207,7 @@ export function NewsAggregator({
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [dateRange, setDateRange] = useState<'24h' | 'week' | 'month' | 'custom'>('24h');
+  const [dateRange, setDateRange] = useState<'24h' | 'week' | 'month' | 'specific' | 'custom'>('24h');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -453,6 +453,15 @@ export function NewsAggregator({
         };
       }
       
+      if (dateRange === 'specific' && customStartDate) {
+        // Single day range
+        const selectedDate = new Date(customStartDate);
+        dates = {
+          from: selectedDate,
+          to: selectedDate
+        };
+      }
+      
       const fetchedArticles = await fetchNews(
         selectedTopics,
         dates,
@@ -621,6 +630,7 @@ export function NewsAggregator({
               <option value="24h">{t.last24h}</option>
               <option value="week">{t.lastWeek}</option>
               <option value="month">{t.lastMonth}</option>
+              <option value="specific">Specific Date</option>
               <option value="custom">{t.custom}</option>
             </select>
           </div>
@@ -691,8 +701,8 @@ export function NewsAggregator({
           </div>
         </div>
 
-        {/* Custom Date Picker */}
-        {dateRange === 'custom' && showTimePicker && (
+        {/* Custom/Specific Date Picker */}
+        {(dateRange === 'custom' || dateRange === 'specific') && showTimePicker && (
           <div className={`mt-4 p-4 rounded-lg border ${
             themeMode === 'newspaper'
               ? 'bg-[#f4e8d0] border-[#8b7355]'
@@ -704,9 +714,30 @@ export function NewsAggregator({
               }`} />
               <h4 className={`text-sm font-semibold ${
                 themeMode === 'newspaper' ? 'text-[#2c1810]' : 'text-gray-900 dark:text-white'
-              }`}>Custom Month & Year</h4>
+              }`}>{dateRange === 'specific' ? 'Select Specific Date' : 'Custom Month & Year'}</h4>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {dateRange === 'specific' ? (
+              <div>
+                <label className={`block text-xs font-medium mb-1 ${
+                  themeMode === 'newspaper' ? 'text-[#3d2817]' : 'text-gray-700 dark:text-gray-300'
+                }`}>Select Date (1997 - Present)</label>
+                <input
+                  type="date"
+                  min="1997-01-01"
+                  max={new Date().toISOString().split('T')[0]}
+                  value={customStartDate}
+                  onChange={(e) => {
+                    setCustomStartDate(e.target.value);
+                    setCustomEndDate(e.target.value);
+                  }}
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:border-transparent ${
+                    themeMode === 'newspaper'
+                      ? 'bg-[#f9f3e8] border-[#8b7355] text-[#2c1810] focus:ring-[#8b7355]'
+                      : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-blue-500'
+                  }`}
+                />
+              </div>
+            ) : (
               <div>
                 <label className={`block text-xs font-medium mb-1 ${
                   themeMode === 'newspaper' ? 'text-[#3d2817]' : 'text-gray-700 dark:text-gray-300'
@@ -755,6 +786,7 @@ export function NewsAggregator({
                 </select>
               </div>
             </div>
+            )}
           </div>
         )}
       </div>
