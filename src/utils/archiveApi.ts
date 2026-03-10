@@ -35,12 +35,17 @@ const ARCHIVE_SOURCES = {
   }
 };
 
-// CORS proxies for archive access
+// CORS proxies for archive access - Custom backend proxy first
+const SCRAPER_PROXY = import.meta.env.VITE_API_URL?.replace('/api', '') + '/api/proxy/scrape';
+
 const CORS_PROXIES = [
+  // Proxy 1: Your custom backend scraper (best - bypasses anti-bot)
+  SCRAPER_PROXY ? `${SCRAPER_PROXY}?url=` : null,
+  // Proxy 2: Public CORS proxy
   'https://corsproxy.io/?',
-  'https://api.allorigins.win/raw?url=',
-  'https://cors-anywhere.herokuapp.com/'
-];
+  // Proxy 3: AllOrigins
+  'https://api.allorigins.win/raw?url='
+].filter(Boolean) as string[];
 
 /**
  * Fetch historical news from archives for date ranges > 7 days
