@@ -96,6 +96,20 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_pdfs_user ON pdfs(user_id);
 `);
 
+// Migrate existing database - add security columns if they don't exist
+try {
+  db.exec(`
+    ALTER TABLE users ADD COLUMN security_question TEXT;
+    ALTER TABLE users ADD COLUMN security_answer TEXT;
+  `);
+  console.log('✅ Database migrated: Added security columns');
+} catch (error) {
+  // Columns already exist, ignore error
+  if (!error.message.includes('duplicate column')) {
+    console.error('Migration error:', error.message);
+  }
+}
+
 // Auth Middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
