@@ -61,13 +61,13 @@ export async function fetchArchiveNews(
   const allArticles: NewsArticle[] = [];
   const daysDiff = (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24);
   
-  // For longer ranges (month/custom), use web scraping for historical content
-  if (daysDiff > 7.5) {
-    console.log('📚 Using web scraping for historical content (month/custom range)');
-    
-    // Generate actual historical dates to scrape
-    const datesToScrape = generateHistoricalDates(dateRange.from, dateRange.to);
-    console.log(`🗓️ Will scrape ${datesToScrape.length} historical dates from multiple sources`);
+  console.log('📚 Using web scraping for historical content');
+  
+  // Generate actual historical dates to scrape
+  const datesToScrape = generateHistoricalDates(dateRange.from, dateRange.to);
+  console.log(`🗓️ Will scrape ${datesToScrape.length} historical dates from multiple sources`);
+  
+  if (datesToScrape.length > 0) {
     
     // Scrape from multiple news sources
     const archiveSources = [
@@ -75,24 +75,24 @@ export async function fetchArchiveNews(
       { name: 'timesOfIndia', scraper: scrapeTimesOfIndiaArchive }
     ];
     
-    for (const source of archiveSources) {
-      onProgress?.(`Fetching ${source.name} archives...`, source.name);
-      
-      for (const date of datesToScrape) {
-        try {
-          const historicalArticles = await source.scraper(date, topics, language);
-          if (historicalArticles.length > 0) {
-            allArticles.push(...historicalArticles);
-            onArticlesFound?.(historicalArticles);
-          }
-          // Small delay between requests
-          await new Promise(resolve => setTimeout(resolve, 800));
-        } catch (error) {
-          console.warn(`Failed to scrape ${source.name} for ${date.toDateString()}:`, error);
-          continue;
+  for (const source of archiveSources) {
+    onProgress?.(`Fetching ${source.name} archives...`, source.name);
+    
+    for (const date of datesToScrape) {
+      try {
+        const historicalArticles = await source.scraper(date, topics, language);
+        if (historicalArticles.length > 0) {
+          allArticles.push(...historicalArticles);
+          onArticlesFound?.(historicalArticles);
         }
+        // Small delay between requests
+        await new Promise(resolve => setTimeout(resolve, 800));
+      } catch (error) {
+        console.warn(`Failed to scrape ${source.name} for ${date.toDateString()}:`, error);
+        continue;
       }
     }
+  }
   }
   
   // Remove duplicates and sort
@@ -329,21 +329,21 @@ function parseArchivePage(
 function generateHistoricalDates(from: Date, to: Date): Date[] {
   const dates: Date[] = [];
   const now = new Date();
+  now.setHours(23, 59, 59, 999); // End of today
   
-  // Ensure we're working with past dates only
-  const actualTo = new Date(Math.min(to.getTime(), now.getTime() - 24 * 60 * 60 * 1000)); // At least 1 day ago
+  // Use the provided dates directly
   const actualFrom = new Date(from.getTime());
+  const actualTo = new Date(Math.min(to.getTime(), now.getTime()));
   
   console.log(`📅 Scraping range: ${actualFrom.toDateString()} to ${actualTo.toDateString()}`);
   
-  const daysDiff = (actualTo.getTime() - actualFrom.getTime()) / (1000 * 60 * 60 * 24);
-  
-  // Scrape every day for all ranges (month and custom)
+  // Scrape every day in the range
   for (let d = new Date(actualFrom); d <= actualTo; d.setDate(d.getDate() + 1)) {
     dates.push(new Date(d));
   }
   
-  return dates; // No limit - scrape all dates
+  console.log(`📅 Generated ${dates.length} dates to scrape`);
+  return dates;
 }
 
 /**
