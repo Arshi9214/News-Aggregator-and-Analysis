@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const SITE_URL = process.env.VITE_SITE_URL || 'https://your-vercel-url.vercel.app';
+const SITE_URL = process.env.VITE_SITE_URL || 'https://news-aggregator-and-analysis.vercel.app';
 
 const pages = [
   { url: '/', priority: '1.0', changefreq: 'daily' },
