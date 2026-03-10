@@ -122,13 +122,29 @@ export function DatabaseViewer({ language, themeMode }: DatabaseViewerProps) {
     if (!confirm(translations.confirmDelete)) return;
     
     try {
-      const allUsers = await UserManager.getAllUsers();
-      const updatedUsers = allUsers.filter(u => u.id !== userId);
-      localStorage.setItem('allUsers', JSON.stringify(updatedUsers));
+      const token = localStorage.getItem('auth_token');
+      const API_URL = import.meta.env.VITE_API_URL || 
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:5000'
+          : `http://${window.location.hostname}:5000`);
+      
+      const response = await fetch(`${API_URL}/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.error || 'Failed to delete user');
+        return;
+      }
       
       await loadData();
     } catch (error) {
       console.error('Failed to delete user:', error);
+      alert('Failed to delete user');
     }
   };
 
