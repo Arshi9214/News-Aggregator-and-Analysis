@@ -1,12 +1,16 @@
 // Secure logger - only logs for admin users in production
-const ADMIN_EMAILS = ['arshi9214@gmail.com', 'arshishaikh9214@gmail.com'];
+const ADMIN_IDENTIFIERS = {
+  name: 'admin',
+  email: 'admin@gmail.com'
+};
 
 class SecureLogger {
   private isAdmin: boolean = false;
   private isDev: boolean = import.meta.env.DEV;
 
-  setUser(email: string | null) {
-    this.isAdmin = email ? ADMIN_EMAILS.includes(email.toLowerCase()) : false;
+  setUser(email: string | null, name: string | null) {
+    this.isAdmin = (name?.toLowerCase() === ADMIN_IDENTIFIERS.name) || 
+                   (email?.toLowerCase() === ADMIN_IDENTIFIERS.email);
   }
 
   private shouldLog(): boolean {
