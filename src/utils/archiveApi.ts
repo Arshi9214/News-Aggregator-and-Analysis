@@ -421,10 +421,20 @@ async function scrapeIndianExpressArchive(
         
         // Try to get description from nearby elements
         let description = '';
+        let imageUrl: string | undefined;
         const parent = link.closest('div, article, li, .story');
         if (parent) {
           const descElement = parent.querySelector('p, .summary, .description, .excerpt, .story-summary');
           description = descElement?.textContent?.trim() || '';
+          
+          // Extract image from parent element
+          const imgElement = parent.querySelector('img');
+          imageUrl = imgElement?.getAttribute('src') || imgElement?.getAttribute('data-src') || undefined;
+          
+          // Fix relative image URLs
+          if (imageUrl && imageUrl.startsWith('/')) {
+            imageUrl = 'https://indianexpress.com' + imageUrl;
+          }
         }
         
         const article: NewsArticle = {
@@ -437,7 +447,7 @@ async function scrapeIndianExpressArchive(
           topics: detectTopics(title + ' ' + description, topics),
           language,
           url,
-          imageUrl: undefined,
+          imageUrl,
           bookmarked: false,
           hasRealContent: description.length > 50
         };
