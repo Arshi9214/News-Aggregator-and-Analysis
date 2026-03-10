@@ -14,6 +14,7 @@ import DatabaseService from './utils/database';
 import { useArticles, usePreferences } from './hooks/useDatabase';
 import { UserManager, User } from './utils/userManager';
 import { translateArticles, translatePDFs } from './utils/translator';
+import { logger } from './utils/logger';
 
 export type Language = 'en' | 'hi' | 'ta' | 'bn' | 'te' | 'mr' | 'gu' | 'kn' | 'ml' | 'pa' | 'ur';
 export type Topic = 'economy' | 'polity' | 'environment' | 'international' | 'science' | 'society' | 'history' | 'geography' | 'all';
@@ -81,6 +82,7 @@ function App() {
     if (user) {
       setCurrentUser(user);
       setShowLanding(false);
+      logger.setUser(user.email || null);
     }
   }, []);
 
@@ -266,6 +268,7 @@ function App() {
     setCurrentUser(user);
     UserManager.setCurrentUser(user);
     setShowLanding(false);
+    logger.setUser(user.email || null);
   };
 
   const handleLogout = () => {
@@ -274,6 +277,7 @@ function App() {
     setArticles([]);
     setProcessedPDFs([]);
     setViewMode('dashboard');
+    logger.setUser(null);
   };
 
   // Show landing page to visitors
