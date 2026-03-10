@@ -8,6 +8,7 @@ import { Dashboard } from './components/Dashboard';
 import { Onboarding } from './components/Onboarding';
 import { MobileMenu } from './components/MobileMenu';
 import { UserAuth } from './components/UserAuth';
+import { LandingPage } from './components/LandingPage';
 import { toast, Toaster } from 'sonner';
 import DatabaseService from './utils/database';
 import { useArticles, usePreferences } from './hooks/useDatabase';
@@ -64,6 +65,7 @@ export type ThemeMode = 'light' | 'dark' | 'newspaper';
 
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [showLanding, setShowLanding] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
   const [language, setLanguage] = useState<Language>('en');
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>(['all']);
@@ -78,6 +80,7 @@ function App() {
     const user = UserManager.getCurrentUser();
     if (user) {
       setCurrentUser(user);
+      setShowLanding(false);
     }
   }, []);
 
@@ -262,6 +265,7 @@ function App() {
   const handleUserLogin = (user: User) => {
     setCurrentUser(user);
     UserManager.setCurrentUser(user);
+    setShowLanding(false);
   };
 
   const handleLogout = () => {
@@ -271,6 +275,16 @@ function App() {
     setProcessedPDFs([]);
     setViewMode('dashboard');
   };
+
+  // Show landing page to visitors
+  if (showLanding && !currentUser) {
+    return (
+      <>
+        <LandingPage onGetStarted={() => setShowLanding(false)} />
+        <Toaster />
+      </>
+    );
+  }
 
   // Show user authentication if no user is logged in
   if (!currentUser) {
