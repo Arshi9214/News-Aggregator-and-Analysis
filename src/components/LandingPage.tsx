@@ -6,31 +6,31 @@ interface LandingPageProps {
 
 export function LandingPage({ onGetStarted }: LandingPageProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="text-center max-w-4xl mx-auto">
           <div className="flex justify-center mb-6">
-            <div className="p-4 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl">
+            <div className="p-4 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg">
               <BookOpen className="h-16 w-16 text-white" />
             </div>
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             AI News Analyzer
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mt-2">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mt-2">
               for UPSC & Competitive Exams
             </span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Get instant AI-powered summaries of current affairs from The Hindu, Indian Express, and TOI. 
-            Available in 11 Indian languages. Perfect for UPSC, SSC, and competitive exam preparation.
+            Get instant AI-powered summaries of current affairs from The Hindu, Indian Express, and TOI etc. 
+            Available in 11 Indian languages. Perfect competitive exam preparation.
           </p>
           
           <button
             onClick={onGetStarted}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-xl hover:shadow-xl transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-lg font-semibold rounded-xl hover:shadow-xl transition-all hover:scale-105"
           >
             Get Started Free
             <ArrowRight className="h-5 w-5" />
@@ -50,8 +50,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-            <div className="p-3 bg-purple-100 rounded-lg w-fit mb-4">
-              <Globe className="h-6 w-6 text-purple-600" />
+            <div className="p-3 bg-indigo-100 rounded-lg w-fit mb-4">
+              <Globe className="h-6 w-6 text-indigo-600" />
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">11 Indian Languages</h3>
             <p className="text-gray-600 text-sm">
@@ -143,11 +143,11 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             Ready to ace your competitive exams?
           </h2>
           <p className="text-gray-600 mb-8">
-            Join thousands of aspirants using AI News Analyzer for their preparation
+            Join other aspirants using AI News Analyzer for their preparation
           </p>
           <button
             onClick={onGetStarted}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-xl hover:shadow-xl transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-lg font-semibold rounded-xl hover:shadow-xl transition-all hover:scale-105"
           >
             Start Analyzing News Now
             <ArrowRight className="h-5 w-5" />
@@ -157,7 +157,6 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         {/* Footer */}
         <div className="mt-20 text-center text-gray-500 text-sm">
           <p>Made with ❤️ for competitive exam aspirants in India</p>
-          <p className="mt-2">Sources: The Hindu, Indian Express, Times of India, NDTV, LiveMint</p>
         </div>
       </div>
     </div>
