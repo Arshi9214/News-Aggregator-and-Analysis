@@ -251,7 +251,12 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const now = new Date().toISOString();
-    db.prepare('UPDATE users SET last_login = ? WHERE id = ?').run(now, user.id);
+    try {
+      db.prepare('UPDATE users SET last_login = ? WHERE id = ?').run(now, user.id);
+      console.log('✅ Updated last_login for user:', user.name, 'to', now);
+    } catch (err) {
+      console.error('❌ Failed to update last_login:', err.message);
+    }
 
     const token = jwt.sign({ userId: user.id, name: user.name }, JWT_SECRET, { expiresIn: '30d' });
 
