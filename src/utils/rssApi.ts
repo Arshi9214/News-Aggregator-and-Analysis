@@ -27,12 +27,17 @@ const RSS_FEEDS = {
   mintEconomy: 'https://www.livemint.com/rss/economy'
 };
 
-// Try multiple CORS proxies
+// Try multiple CORS proxies - Fast public first, then custom as reliable fallback
+const RSS_PROXY_URL = import.meta.env.VITE_RSS_PROXY;
+
 const CORS_PROXIES = [
+  // Proxy 1: corsproxy.io (fastest 310ms, but rate-limited after 3-5 requests)
   'https://corsproxy.io/?',
-  'https://api.allorigins.win/raw?url=',
-  'https://cors-anywhere.herokuapp.com/'
-];
+  // Proxy 2: Your custom backend proxy (slower 917ms, but NO rate limits - reliable)
+  RSS_PROXY_URL ? `${RSS_PROXY_URL}?url=` : null,
+  // Proxy 3: AllOrigins proxy (slowest, last resort)
+  'https://api.allorigins.win/raw?url='
+].filter(Boolean) as string[];
 
 function cleanHTML(html: string): string {
   const div = document.createElement('div');
