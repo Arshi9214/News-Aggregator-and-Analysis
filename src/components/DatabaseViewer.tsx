@@ -86,14 +86,14 @@ export function DatabaseViewer({ language, themeMode }: DatabaseViewerProps) {
       const token = localStorage.getItem('auth_token');
       
       // Auto-detect API URL
-      const hostname = window.location.hostname;
-      const baseUrl = (hostname === 'localhost' || hostname === '127.0.0.1') 
-        ? 'http://localhost:5000' 
-        : `http://${hostname}:5000`;
+      const API_URL = import.meta.env.VITE_API_URL || 
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:5000'
+          : `http://${window.location.hostname}:5000`);
       
       for (const user of allUsers) {
         try {
-          const response = await fetch(`${baseUrl}/api/admin/user-stats/${user.id}`, {
+          const response = await fetch(`${API_URL}/api/admin/user-stats/${user.id}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
