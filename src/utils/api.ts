@@ -29,16 +29,26 @@ export const api = {
     localStorage.removeItem('auth_token');
   },
 
-  async register(name: string, password: string, email?: string) {
+  async register(name: string, password: string, email?: string, securityQuestion?: string, securityAnswer?: string) {
     const res = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
+      body: JSON.stringify({ name, email, password, securityQuestion, securityAnswer })
     });
     if (!res.ok) throw new Error((await res.json()).error);
     const data = await res.json();
     this.setToken(data.token);
     return data.user;
+  },
+
+  async resetPassword(nameOrEmail: string, securityAnswer: string, newPassword: string) {
+    const res = await fetch(`${API_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nameOrEmail, securityAnswer, newPassword })
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    return res.json();
   },
 
   async login(name: string, password: string) {
