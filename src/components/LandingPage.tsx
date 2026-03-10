@@ -1,0 +1,165 @@
+import { BookOpen, Zap, Globe, Shield, ArrowRight, CheckCircle } from 'lucide-react';
+
+interface LandingPageProps {
+  onGetStarted: () => void;
+}
+
+export function LandingPage({ onGetStarted }: LandingPageProps) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center max-w-4xl mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="p-4 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl">
+              <BookOpen className="h-16 w-16 text-white" />
+            </div>
+          </div>
+          
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+            AI News Analyzer
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mt-2">
+              for UPSC & Competitive Exams
+            </span>
+          </h1>
+          
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Get instant AI-powered summaries of current affairs from The Hindu, Indian Express, and TOI. 
+            Available in 11 Indian languages. Perfect for UPSC, SSC, and competitive exam preparation.
+          </p>
+          
+          <button
+            onClick={onGetStarted}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-xl hover:shadow-xl transition-all hover:scale-105"
+          >
+            Get Started Free
+            <ArrowRight className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-20">
+          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="p-3 bg-blue-100 rounded-lg w-fit mb-4">
+              <Zap className="h-6 w-6 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">AI-Powered Summaries</h3>
+            <p className="text-gray-600 text-sm">
+              Get instant summaries and key takeaways from lengthy news articles using advanced AI.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="p-3 bg-purple-100 rounded-lg w-fit mb-4">
+              <Globe className="h-6 w-6 text-purple-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">11 Indian Languages</h3>
+            <p className="text-gray-600 text-sm">
+              Read news in English, Hindi, Tamil, Bengali, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Urdu.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="p-3 bg-green-100 rounded-lg w-fit mb-4">
+              <BookOpen className="h-6 w-6 text-green-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Trusted Sources</h3>
+            <p className="text-gray-600 text-sm">
+              Aggregates news from The Hindu, Indian Express, Times of India, NDTV, and more.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="p-3 bg-orange-100 rounded-lg w-fit mb-4">
+              <Shield className="h-6 w-6 text-orange-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">PDF Analysis</h3>
+            <p className="text-gray-600 text-sm">
+              Upload and analyze PDF documents with AI-powered insights and summaries.
+            </p>
+          </div>
+        </div>
+
+        {/* Benefits Section */}
+        <div className="mt-20 bg-white rounded-2xl shadow-xl p-8 md:p-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            Perfect for Competitive Exam Preparation
+          </h2>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Daily Current Affairs</h4>
+                <p className="text-gray-600 text-sm">Stay updated with latest news from trusted sources</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Historical Archives</h4>
+                <p className="text-gray-600 text-sm">Access news archives from 1997 onwards</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Topic-wise Filtering</h4>
+                <p className="text-gray-600 text-sm">Filter by Economy, Polity, Environment, Science, and more</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Bookmark & Export</h4>
+                <p className="text-gray-600 text-sm">Save important articles and export to PDF</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Cross-Device Sync</h4>
+                <p className="text-gray-600 text-sm">Access your data from any device</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Free to Use</h4>
+                <p className="text-gray-600 text-sm">No subscription required, completely free</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="mt-20 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Ready to ace your competitive exams?
+          </h2>
+          <p className="text-gray-600 mb-8">
+            Join thousands of aspirants using AI News Analyzer for their preparation
+          </p>
+          <button
+            onClick={onGetStarted}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-xl hover:shadow-xl transition-all hover:scale-105"
+          >
+            Start Analyzing News Now
+            <ArrowRight className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-20 text-center text-gray-500 text-sm">
+          <p>Made with ❤️ for competitive exam aspirants in India</p>
+          <p className="mt-2">Sources: The Hindu, Indian Express, Times of India, NDTV, LiveMint</p>
+        </div>
+      </div>
+    </div>
+  );
+}
