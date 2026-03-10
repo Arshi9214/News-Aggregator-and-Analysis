@@ -203,17 +203,25 @@ app.post('/api/auth/register', async (req, res) => {
     if (!name || !password) {
       return res.status(400).json({ error: 'Name and password required' });
     }
-    
-    if (!securityQuestion || !securityAnswer) {
-      return res.status(400).json({ error: 'Security question and answer required' });
-    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const now = new Date().toISOString();
 
-    const stmt = db.prepare('INSERT INTO users (id, name, email, password, security_question, security_answer, created_at, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-    stmt.run(userId, name, email || null, hashedPassword, securityQuestion, securityAnswer, now, now);
+    // Check if security columns exist
+    const columns = db.prepare("PRAGMA table_info(users)").all().map(c => c.name);
+    const hasSecurityColumns = columns.includes('security_question');
+
+    if (hasSecurityColumns) {
+      if (!securityQuestion || !securityAnswer) {
+        return res.status(400).json({ error: 'Security question and answer required' });
+      }
+      const stmt = db.prepare('INSERT INTO users (id, name, email, password, security_question, security_answer, created_at, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+      stmt.run(userId, name, email || null, hashedPassword, securityQuestion, securityAnswer, now, now);
+    } else {
+      const stmt = db.prepare('INSERT INTO users (id, name, email, password, created_at, last_login) VALUES (?, ?, ?, ?, ?, ?)');
+      stmt.run(userId, name, email || null, hashedPassword, now, now);
+    }
 
     const token = jwt.sign({ userId, name }, JWT_SECRET, { expiresIn: '30d' });
 
@@ -276,6 +284,11 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Check if security columns exist
+    if (!user.security_answer) {
+      return res.status(400).json({ error: 'Password reset not available for this account' });
     }
 
     if (user.security_answer !== securityAnswer) {
