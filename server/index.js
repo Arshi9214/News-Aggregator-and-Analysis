@@ -115,6 +115,35 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// RSS Proxy endpoint (no authentication needed)
+app.get('/api/proxy/rss', async (req, res) => {
+  try {
+    const { url } = req.query;
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL parameter required' });
+    }
+
+    // Fetch RSS feed
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to fetch RSS feed' });
+    }
+
+    const text = await response.text();
+    res.set('Content-Type', 'application/xml');
+    res.send(text);
+  } catch (error) {
+    console.error('RSS proxy error:', error.message);
+    res.status(500).json({ error: 'Proxy request failed' });
+  }
+});
+
 // Register
 app.post('/api/auth/register', async (req, res) => {
   try {
