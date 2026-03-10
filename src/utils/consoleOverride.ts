@@ -1,4 +1,7 @@
-const ADMIN_EMAIL = 'arshi9214@gmail.com';
+const ADMIN_IDENTIFIERS = {
+  name: 'admin',
+  email: 'admin@gmail.com'
+};
 
 // Override console methods in production
 if (import.meta.env.PROD) {
@@ -11,7 +14,8 @@ if (import.meta.env.PROD) {
       const userStr = localStorage.getItem('newsapp_current_user');
       if (!userStr) return false;
       const user = JSON.parse(userStr);
-      return user.email?.toLowerCase() === ADMIN_EMAIL;
+      return user.name?.toLowerCase() === ADMIN_IDENTIFIERS.name || 
+             user.email?.toLowerCase() === ADMIN_IDENTIFIERS.email;
     } catch {
       return false;
     }
