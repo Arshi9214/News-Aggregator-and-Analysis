@@ -144,6 +144,41 @@ app.get('/api/proxy/rss', async (req, res) => {
   }
 });
 
+// Article scraper endpoint (no authentication needed)
+app.get('/api/proxy/scrape', async (req, res) => {
+  try {
+    const { url } = req.query;
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL parameter required' });
+    }
+
+    // Fetch article page with realistic browser headers
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to fetch article' });
+    }
+
+    const html = await response.text();
+    res.set('Content-Type', 'text/html');
+    res.send(html);
+  } catch (error) {
+    console.error('Scraper proxy error:', error.message);
+    res.status(500).json({ error: 'Scraper request failed' });
+  }
+});
+
 // Register
 app.post('/api/auth/register', async (req, res) => {
   try {

@@ -60,18 +60,23 @@ function extractTextFromHTML(html: string): string {
 }
 
 /**
- * Fetch full article content from URL using CORS proxy
+ * Fetch full article content from URL using backend scraper proxy
  */
 export async function scrapeArticleContent(url: string): Promise<ScrapedContent> {
   if (!url) {
     return { content: '', success: false, error: 'No URL provided' };
   }
 
+  const scraperProxy = import.meta.env.VITE_API_URL?.replace('/api', '') + '/api/proxy/scrape';
+  
   const corsProxies = [
+    // Proxy 1: Your custom backend scraper (best - bypasses anti-bot)
+    scraperProxy ? `${scraperProxy}?url=` : null,
+    // Proxy 2: Public CORS proxy
     'https://corsproxy.io/?',
-    'https://api.allorigins.win/raw?url=',
-    'https://cors-anywhere.herokuapp.com/'
-  ];
+    // Proxy 3: AllOrigins
+    'https://api.allorigins.win/raw?url='
+  ].filter(Boolean) as string[];
 
   for (let i = 0; i < corsProxies.length; i++) {
     try {
