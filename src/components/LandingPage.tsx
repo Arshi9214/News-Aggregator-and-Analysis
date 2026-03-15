@@ -1,4 +1,4 @@
-import { BookOpen, Zap, Globe, Shield, ArrowRight, CheckCircle } from 'lucide-react';
+import { BookOpen, Zap, Globe, Shield, ArrowRight, CheckCircle, Smartphone } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -28,13 +28,24 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             Available in 11 Indian languages. Perfect competitive exam preparation.
           </p>
           
-          <button
-            onClick={onGetStarted}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-lg font-semibold rounded-xl hover:shadow-xl transition-all hover:scale-105"
-          >
-            Get Started Free
-            <ArrowRight className="h-5 w-5" />
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={onGetStarted}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-lg font-semibold rounded-xl hover:shadow-xl transition-all hover:scale-105"
+            >
+              Get Started Free
+              <ArrowRight className="h-5 w-5" />
+            </button>
+            <a
+              href="https://github.com/Arshi9214/News-Aggregator-and-Analysis/releases"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white border-2 border-blue-600 text-blue-600 text-lg font-semibold rounded-xl hover:shadow-xl transition-all hover:scale-105"
+            >
+              <Smartphone className="h-5 w-5" />
+              Download App
+            </a>
+          </div>
         </div>
 
         {/* Features Grid */}
@@ -135,6 +146,24 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* App Download Banner */}
+        <div className="mt-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl p-8 md:p-12 text-center text-white">
+          <Smartphone className="h-12 w-12 mx-auto mb-4 opacity-90" />
+          <h2 className="text-3xl font-bold mb-3">Take it on the go!</h2>
+          <p className="text-blue-100 mb-6 max-w-xl mx-auto">
+            Download the AI News Analyzer mobile app and stay updated with current affairs anytime, anywhere.
+          </p>
+          <a
+            href="https://github.com/Arshi9214/News-Aggregator-and-Analysis/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 text-lg font-semibold rounded-xl hover:shadow-xl transition-all hover:scale-105"
+          >
+            <Smartphone className="h-5 w-5" />
+            Download Android App (.apk)
+          </a>
         </div>
 
         {/* CTA Section */}
