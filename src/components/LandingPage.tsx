@@ -153,10 +153,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             <ArrowRight className="h-5 w-5" />
           </button>
         </div>
-
+}
         {/* Footer */}
         <div className="mt-20 text-center text-gray-500 text-sm">
-          <p>Made with love for competitive exam aspirants in India</p>
+          <p>Made with ❤️ for competitive exam aspirants in India</p>
         </div>
       </div>
     </div>
