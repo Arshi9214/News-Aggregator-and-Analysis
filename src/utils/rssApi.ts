@@ -164,7 +164,9 @@ export async function fetchRSSNews(
           });
           
           if (filteredSourceArticles.length > 0) {
-            onArticlesFound(filteredSourceArticles);
+            // Remove duplicates before sending
+            const uniqueFiltered = removeDuplicates(filteredSourceArticles);
+            onArticlesFound(uniqueFiltered);
           }
         }
         
@@ -209,22 +211,29 @@ export async function fetchRSSNews(
   });}
 
 /**
- * Remove duplicate articles based on title similarity
+ * Remove duplicate articles based on URL and title similarity
  */
 function removeDuplicates(articles: NewsArticle[]): NewsArticle[] {
   const unique: NewsArticle[] = [];
+  const seenUrls = new Set<string>();
   const seenTitles = new Set<string>();
   
   for (const article of articles) {
-    // More aggressive normalization for better duplicate detection
-    const normalizedTitle = article.title
+    // Check URL first (most reliable)
+    if (article.url && seenUrls.has(article.url)) {
+      continue;
+    }
+    
+    // Use original title for better matching (before translation)
+    const titleToCheck = article.originalTitle || article.title;
+    const normalizedTitle = titleToCheck
       .toLowerCase()
-      .replace(/[^\w\s]/g, ' ')  // Replace punctuation with spaces
-      .replace(/\s+/g, ' ')     // Collapse multiple spaces
+      .replace(/[^\w\s]/g, ' ')
+      .replace(/\s+/g, ' ')
       .trim();
     
-    // Create a shorter key for similarity matching (first 50 chars)
-    const titleKey = normalizedTitle.substring(0, 50);
+    // Use first 40 chars as fingerprint
+    const titleKey = normalizedTitle.substring(0, 40);
     
     // Check if we've seen a very similar title
     let isDuplicate = false;
@@ -238,6 +247,7 @@ function removeDuplicates(articles: NewsArticle[]): NewsArticle[] {
     }
     
     if (!isDuplicate && normalizedTitle.length > 10) {
+      if (article.url) seenUrls.add(article.url);
       seenTitles.add(titleKey);
       unique.push(article);
     }
@@ -281,23 +291,35 @@ function detectTopics(content: string, selectedTopics: Topic[]): Topic[] {
   const lowerContent = content.toLowerCase();
   const keywords: Record<Topic, string[]> = {
     all: [],
-    economy: ['economy', 'gdp', 'rbi', 'budget', 'market', 'finance'],
-    polity: ['government', 'parliament', 'politics', 'election', 'minister'],
-    environment: ['environment', 'climate', 'pollution', 'green', 'carbon'],
-    international: ['foreign', 'international', 'global', 'world', 'country'],
-    science: ['technology', 'science', 'isro', 'research', 'innovation'],
-    society: ['education', 'health', 'society', 'social', 'welfare'],
-    history: ['history', 'heritage', 'ancient', 'historical'],
-    geography: ['geography', 'natural', 'resources', 'region']
+    economy: ['economy', 'economic', 'gdp', 'rbi', 'budget', 'market', 'finance', 'financial', 'bank', 'banking', 'stock', 'trade', 'export', 'import', 'inflation', 'fiscal', 'monetary', 'investment', 'revenue', 'tax', 'rupee', 'dollar', 'currency', 'debt', 'loan', 'credit', 'nifty', 'sensex', 'sebi', 'reserve bank'],
+    polity: ['government', 'parliament', 'politics', 'political', 'election', 'minister', 'ministry', 'prime minister', 'president', 'governor', 'chief minister', 'bjp', 'congress', 'party', 'coalition', 'lok sabha', 'rajya sabha', 'bill', 'law', 'constitution', 'supreme court', 'high court', 'judiciary', 'cabinet', 'policy', 'reform', 'governance', 'democracy', 'vote', 'campaign'],
+    environment: ['environment', 'environmental', 'climate', 'pollution', 'green', 'carbon', 'emission', 'renewable', 'solar', 'wind', 'energy', 'forest', 'wildlife', 'conservation', 'biodiversity', 'ecosystem', 'global warming', 'sustainability', 'waste', 'recycle', 'clean', 'air quality', 'water', 'river', 'ocean', 'plastic', 'deforestation', 'endangered'],
+    international: ['foreign', 'international', 'global', 'world', 'country', 'nation', 'bilateral', 'multilateral', 'united nations', 'un', 'usa', 'china', 'pakistan', 'russia', 'europe', 'asia', 'africa', 'america', 'treaty', 'agreement', 'diplomacy', 'ambassador', 'embassy', 'border', 'war', 'conflict', 'peace', 'trade deal', 'summit', 'g20', 'brics'],
+    science: ['technology', 'tech', 'science', 'scientific', 'isro', 'research', 'innovation', 'space', 'satellite', 'rocket', 'ai', 'artificial intelligence', 'machine learning', 'digital', 'internet', 'cyber', 'data', 'computer', 'software', 'hardware', 'startup', 'innovation', 'patent', 'discovery', 'experiment', 'laboratory', 'scientist', 'engineer', 'quantum', '5g'],
+    society: ['education', 'health', 'healthcare', 'society', 'social', 'welfare', 'poverty', 'unemployment', 'employment', 'job', 'skill', 'training', 'school', 'college', 'university', 'student', 'teacher', 'hospital', 'doctor', 'medicine', 'disease', 'vaccine', 'covid', 'pandemic', 'public health', 'ngo', 'charity', 'community', 'rural', 'urban', 'women', 'child'],
+    history: ['history', 'historical', 'heritage', 'ancient', 'medieval', 'independence', 'freedom', 'struggle', 'monument', 'archaeological', 'museum', 'culture', 'tradition', 'legacy', 'civilization', 'empire', 'dynasty', 'king', 'queen', 'war', 'battle', 'revolution', 'colonial', 'british raj', 'partition'],
+    geography: ['geography', 'geographical', 'natural', 'resources', 'region', 'state', 'district', 'city', 'village', 'mountain', 'river', 'valley', 'plateau', 'plain', 'coast', 'island', 'desert', 'forest', 'mineral', 'oil', 'gas', 'coal', 'water resources', 'irrigation', 'agriculture', 'farming', 'crop', 'monsoon', 'rainfall', 'drought', 'flood']
   };
   
-  const detected: Topic[] = [];
+  const topicScores: Record<string, number> = {};
+  
   for (const [topic, words] of Object.entries(keywords)) {
     if (topic === 'all') continue;
-    if (words.some(w => lowerContent.includes(w))) {
-      detected.push(topic as Topic);
+    let score = 0;
+    for (const word of words) {
+      if (lowerContent.includes(word)) {
+        score++;
+      }
+    }
+    if (score > 0) {
+      topicScores[topic] = score;
     }
   }
   
-  return detected.length > 0 ? detected.slice(0, 2) : ['all'];
+  const detected = Object.entries(topicScores)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 2)
+    .map(([topic]) => topic as Topic);
+  
+  return detected.length > 0 ? detected : ['all'];
 }

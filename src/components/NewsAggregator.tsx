@@ -470,12 +470,28 @@ export function NewsAggregator({
           console.log(`🔄 Progressive update: ${newArticles.length} new articles`);
           if (!isLoadMore) {
             onArticlesLoaded((prev) => {
-              // Handle both direct array and function
               const prevArticles = typeof prev === 'function' ? [] : prev;
               const combined = [...prevArticles, ...newArticles];
-              const unique = combined.filter((article, index, self) => 
-                index === self.findIndex(a => a.id === article.id)
-              );
+              
+              // Aggressive deduplication: URL first, then title
+              const seenUrls = new Set<string>();
+              const seenTitles = new Set<string>();
+              const unique = combined.filter(article => {
+                // Check URL
+                if (article.url) {
+                  if (seenUrls.has(article.url)) return false;
+                  seenUrls.add(article.url);
+                }
+                
+                // Check title (first 40 chars)
+                const titleToCheck = article.originalTitle || article.title;
+                const titleKey = titleToCheck.toLowerCase().replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 40);
+                if (seenTitles.has(titleKey)) return false;
+                seenTitles.add(titleKey);
+                
+                return true;
+              });
+              
               console.log(`📊 Combined: ${prevArticles.length} + ${newArticles.length} = ${unique.length} unique`);
               return unique.sort((a, b) => b.date.getTime() - a.date.getTime());
             });
@@ -489,9 +505,26 @@ export function NewsAggregator({
       if (!isLoadMore && fetchedArticles.length > 0) {
         onArticlesLoaded((prev) => {
           const combined = [...prev, ...fetchedArticles];
-          const unique = combined.filter((article, index, self) => 
-            index === self.findIndex(a => a.id === article.id)
-          );
+          
+          // Final aggressive deduplication
+          const seenUrls = new Set<string>();
+          const seenTitles = new Set<string>();
+          const unique = combined.filter(article => {
+            // Check URL
+            if (article.url) {
+              if (seenUrls.has(article.url)) return false;
+              seenUrls.add(article.url);
+            }
+            
+            // Check title (first 40 chars)
+            const titleToCheck = article.originalTitle || article.title;
+            const titleKey = titleToCheck.toLowerCase().replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 40);
+            if (seenTitles.has(titleKey)) return false;
+            seenTitles.add(titleKey);
+            
+            return true;
+          });
+          
           console.log(`✅ Final: ${unique.length} unique articles`);
           return unique.sort((a, b) => b.date.getTime() - a.date.getTime());
         });
