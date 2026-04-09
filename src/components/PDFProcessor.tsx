@@ -9,9 +9,14 @@ import { getTranslatedText } from '../utils/translator';
 // Simple language detection
 function detectLanguage(text: string): Language {
   const sample = text.substring(0, 500);
+  if (/[\u0900-\u097F]/.test(sample)) {
+    // Distinguish between Hindi and Marathi (both use Devanagari)
+    // Marathi has specific characters like ळ (\u0933), ऱ (\u0931)
+    if (/[\u0933\u0931]/.test(sample)) return 'mr'; // Marathi
+    return 'hi'; // Hindi
+  }
   if (/[\u0C00-\u0C7F]/.test(sample)) return 'te'; // Telugu
   if (/[\u0B80-\u0BFF]/.test(sample)) return 'ta'; // Tamil
-  if (/[\u0900-\u097F]/.test(sample)) return 'hi'; // Hindi
   if (/[\u0980-\u09FF]/.test(sample)) return 'bn'; // Bengali
   if (/[\u0C80-\u0CFF]/.test(sample)) return 'kn'; // Kannada
   if (/[\u0D00-\u0D7F]/.test(sample)) return 'ml'; // Malayalam
